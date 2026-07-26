@@ -18,9 +18,11 @@ class AppIcon extends StatelessWidget {
     required this.onTap,
     this.size = 60,
     this.badge,
+    this.showLabel = true,
   });
 
-  /// Nome do app, abaixo do ladrilho.
+  /// Nome do app. Some da tela quando `showLabel` é falso, mas continua
+  /// sendo o nome anunciado por leitor de tela.
   final String label;
 
   /// O desenho do ícone. Recebe a cor pelo `IconTheme`.
@@ -36,6 +38,9 @@ class AppIcon extends StatelessWidget {
 
   /// Contagem do selo. Um ícone só do sistema recebe selo.
   final int? badge;
+
+  /// A doca mostra só os ladrilhos; a grade mostra os nomes.
+  final bool showLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -110,25 +115,40 @@ class AppIcon extends StatelessWidget {
       ),
     );
 
-    return Column(
+    final icon = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         spec.tappable(onTap: onTap, radius: radius, child: target),
-        SizedBox(height: size * 0.1),
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: tokens.textPrimary,
-            fontSize: spec.appLabelSize,
-            fontWeight: spec.appLabelWeight,
-            height: 1.2,
+        if (showLabel) ...[
+          SizedBox(height: size * 0.1),
+          // O nome abre o app junto com o ladrilho: escrito embaixo do ícone
+          // ele parece parte dele, e o que parece tocável funciona. Fica fora
+          // do `tappable` porque a resposta visual da pele pertence ao
+          // ladrilho — no iOS é ele que encolhe, não a legenda.
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: tokens.textPrimary,
+                fontSize: spec.appLabelSize,
+                fontWeight: spec.appLabelWeight,
+                height: 1.2,
+              ),
+            ),
           ),
-        ),
+        ],
       ],
     );
+
+    // Com o rótulo na tela o nome já é anunciado. Sem ele, um leitor de tela
+    // encontraria um botão sem nome — então o nome entra pela semântica.
+    if (showLabel) return icon;
+    return Semantics(label: label, button: true, child: icon);
   }
 }
 

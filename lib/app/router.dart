@@ -1,6 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/platform/platform_scope.dart';
 import '../features/about/about_screen.dart';
+import '../features/contact/contact_screen.dart';
 import '../features/experience/experience_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/lock/lock_screen.dart';
@@ -19,10 +22,15 @@ abstract final class Routes {
   static const String experience = '/experiencia';
   static const String resume = '/curriculo';
   static const String settings = '/ajustes';
+
+  // A doca: contato.
+  static const String phone = '/telefone';
+  static const String email = '/email';
+  static const String linkedin = '/linkedin';
+  static const String github = '/github';
 }
 
-/// Monta o roteador. As transições ainda são as do padrão: a curva de cada
-/// plataforma entra quando a `PlatformSpec` for ligada às rotas.
+/// Monta o roteador.
 GoRouter createRouter() {
   return GoRouter(
     initialLocation: Routes.lock,
@@ -33,7 +41,34 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+        // Destravar é a única transição com dono nesta etapa, e o tempo e a
+        // curva são os da pele ativa: é o mesmo gesto lido de dois jeitos.
+        pageBuilder: (context, state) {
+          final spec = context.platform;
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            transitionDuration: spec.openDuration,
+            reverseTransitionDuration: spec.closeDuration,
+            child: const HomeScreen(),
+            transitionsBuilder: (context, animation, secondary, child) {
+              final eased = animation.drive(
+                CurveTween(curve: spec.openCurve),
+              );
+              return FadeTransition(
+                opacity: eased,
+                child: SlideTransition(
+                  position: eased.drive(
+                    Tween<Offset>(
+                      begin: const Offset(0, 0.04),
+                      end: Offset.zero,
+                    ),
+                  ),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
       ),
       GoRoute(
         path: Routes.pen,
@@ -58,6 +93,22 @@ GoRouter createRouter() {
       GoRoute(
         path: Routes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.phone,
+        builder: (context, state) => const ContactScreen(channel: 'Telefone'),
+      ),
+      GoRoute(
+        path: Routes.email,
+        builder: (context, state) => const ContactScreen(channel: 'Email'),
+      ),
+      GoRoute(
+        path: Routes.linkedin,
+        builder: (context, state) => const ContactScreen(channel: 'LinkedIn'),
+      ),
+      GoRoute(
+        path: Routes.github,
+        builder: (context, state) => const ContactScreen(channel: 'GitHub'),
       ),
     ],
   );

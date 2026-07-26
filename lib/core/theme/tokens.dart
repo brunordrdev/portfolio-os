@@ -18,6 +18,7 @@ class AppTokens {
     required this.textSecondary,
     required this.accent,
     required this.badge,
+    required this.coolGlow,
     required this.glyphs,
   });
 
@@ -52,6 +53,10 @@ class AppTokens {
   /// Vermelho do selo. Escasso de propósito — um ícone só o usa.
   final Color badge;
 
+  /// Azul do brilho frio do papel de parede, no canto oposto ao acento.
+  /// Entra sempre com alfa baixo: é luz, não superfície.
+  final Color coolGlow;
+
   /// Matizes dos glifos, uma por app, na ordem da grade.
   final List<Color> glyphs;
 
@@ -67,6 +72,7 @@ class AppTokens {
     textSecondary: Color(0xFF8D8478),
     accent: Color(0xFFE8A94E),
     badge: Color(0xFFE2532F),
+    coolGlow: Color(0xFF5A7896),
     glyphs: [
       Color(0xFFE29070),
       Color(0xFF69BDB0),
@@ -93,6 +99,7 @@ class AppTokens {
     textSecondary: Color(0xFF948B7D),
     accent: Color(0xFFE2683F),
     badge: Color(0xFFE2532F),
+    coolGlow: Color(0xFF5A7896),
     glyphs: [
       Color(0xFFE2532F),
       Color(0xFF159183),
