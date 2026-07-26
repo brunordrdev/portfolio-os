@@ -21,13 +21,37 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
+          # Versão exata da máquina de desenvolvimento — Flutter 3.41.4,
+          # canal stable, Dart 3.11.1. É ela que resolveu o pubspec.lock
+          # commitado, e é o passo seguinte que cobra isso. Um "latest" que
+          # muda sozinho transforma erro de compilador em mistério e faz o
+          # CI compilar um programa diferente do que roda aqui.
           channel: stable
-          # Presa na versão usada no desenvolvimento: um "latest" que muda
-          # sozinho transforma erro de compilador em mistério.
           flutter-version: 3.41.4
           cache: true
 
       - run: flutter pub get
+
+      # Invariante que apodrece calada: o lock commitado tem que ser
+      # exatamente o que o pub resolve com a versão fixada acima. Se o CI
+      # mexer no lock, o build do CI deixou de ser o build local.
+      - name: pubspec.lock não pode mudar
+        run: |
+          if ! git diff --exit-code pubspec.lock; then
+            echo "::error::flutter pub get mexeu no pubspec.lock — o lock commitado não corresponde à versão do Flutter fixada no workflow."
+            echo ""
+            echo "O diff acima mostra o que mudou. Dois consertos possíveis:"
+            echo ""
+            echo "  - rodar 'flutter pub get' na máquina de desenvolvimento e"
+            echo "    commitar o pubspec.lock resultante; ou"
+            echo "  - devolver flutter-version, no passo subosito/flutter-action"
+            echo "    acima, à versão que gerou o lock commitado."
+            echo ""
+            echo "Enquanto os dois divergirem, o que o CI compila e publica não é"
+            echo "o que foi testado aqui."
+            exit 1
+          fi
+          echo "pubspec.lock intacto: o CI resolveu exatamente o que está commitado."
 
       # --fatal-infos: info vira erro. Aviso que não quebra o build vira
       # ruído, e ruído acumulado deixa de ser lido.
