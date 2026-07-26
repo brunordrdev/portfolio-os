@@ -1,0 +1,114 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Uma publicação de cada vez. Se dois pushes entrarem juntos na main, o
+# segundo espera — mas não é cancelado, porque o primeiro pode já estar
+# no meio de um deploy.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Presa na versão usada no desenvolvimento: um "latest" que muda
+          # sozinho transforma erro de compilador em mistério.
+          flutter-version: 3.41.4
+          cache: true
+
+      - run: flutter pub get
+
+      # --fatal-infos: info vira erro. Aviso que não quebra o build vira
+      # ruído, e ruído acumulado deixa de ser lido.
+      - run: flutter analyze --fatal-infos
+
+      # A regra dura nº 1 do CLAUDE.md, verificada por máquina. Um analyze
+      # limpo não vê esse vazamento: `Platform.isIOS` numa tela compila.
+      - name: Verificar a costura
+        run: |
+          leaks=$(grep -rnE 'Platform\.|defaultTargetPlatform' lib --include='*.dart' \
+                  | grep -v '^lib/core/platform/' || true)
+          if [ -n "$leaks" ]; then
+            echo "::error::A costura vazou: código fora de lib/core/platform/ está perguntando a plataforma direto."
+            echo ""
+            echo "Regra dura nº 1 do CLAUDE.md:"
+            echo ""
+            echo "  Nenhuma tela contém 'if (Platform.isIOS)' ou equivalente. Tudo que"
+            echo "  muda entre plataformas vive atrás de PlatformSpec, em"
+            echo "  lib/core/platform/platform_spec.dart. Se uma tela precisar saber a"
+            echo "  plataforma, acrescente um membro à interface — nunca uma exceção"
+            echo "  na tela."
+            echo ""
+            echo "Sem isso a troca iOS <-> Android deixa de acontecer num ponto só, e"
+            echo "a tese do projeto para de valer. O conserto é na costura, não aqui."
+            echo ""
+            echo "Ocorrências encontradas:"
+            echo "$leaks"
+            exit 1
+          fi
+          echo "Costura íntegra: só lib/core/platform/ conhece a plataforma."
+
+      - run: flutter test
+
+      - run: flutter build web --release
+
+      # ── Publicação ────────────────────────────────────────────────────
+      # Só na main, e só em push: um pull request de fora não publica.
+      - name: Deploy — Cloudflare Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build/web --project-name=portfolio-os
+      #
+      # O projeto "portfolio-os" precisa existir antes no painel do
+      # Cloudflare Pages (Workers & Pages › Create › Pages › Direct Upload).
+      # O fallback de SPA vem do arquivo web/_redirects, que o build copia
+      # para build/web — sem ele, recarregar /sobre dá 404.
+      #
+      # ── Trocar de hospedagem ──────────────────────────────────────────
+      #
+      # GitHub Pages — ATENÇÃO ao caminho. Se o site não estiver na raiz do
+      # domínio (usuario.github.io/portfolio em vez de brunordrdev.com), o
+      # build precisa saber disso:
+      #
+      #     flutter build web --release --base-href /portfolio/
+      #
+      # Sem isso o app carrega numa tela branca: os assets são pedidos na
+      # raiz e não estão lá. E o GitHub Pages ignora web/_redirects — o
+      # contorno usual é copiar index.html para 404.html no build.
+      #
+      #   - uses: actions/upload-pages-artifact@v3
+      #     with: { path: build/web }
+      #   - uses: actions/deploy-pages@v4
+      #   (exige permissions: pages: write, id-token: write no job)
+      #
+      # Netlify — lê web/_redirects sozinho, nada a configurar:
+      #
+      #   - uses: nwtgck/actions-netlify@v3
+      #     with: { publish-dir: build/web, production-deploy: true }
+      #     env:
+      #       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      #
+      # Vercel — o fallback de SPA vai em vercel.json, não em _redirects:
+      #
+      #   - uses: amondnet/vercel-action@v25
+      #     with:
+      #       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #       vercel-args: '--prod'
+      #       working-directory: build/web

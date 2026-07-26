@@ -1,0 +1,4 @@
+# Sem "#" na URL, quem abre ou recarrega /sobre pede esse caminho ao host.
+# O host não tem esse arquivo — quem resolve a rota é o app. Então tudo que
+# não for arquivo existente devolve o index com 200 (não 301, não 404).
+/*  /index.html  200
