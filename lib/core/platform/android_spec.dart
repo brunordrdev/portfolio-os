@@ -77,6 +77,11 @@ class AndroidSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 32;
 
+  // Sem cápsula: no Android os ícones da doca ficam soltos sobre o papel de
+  // parede. Nada de contêiner, nada de desfoque — só os ícones.
+  @override
+  Widget dock({required Widget child}) => child;
+
   // Furo de câmera redondo, canto mais fechado e borda fina.
   @override
   Widget deviceFrame() {

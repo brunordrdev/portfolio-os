@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/cupertino.dart';
 
 import '../theme/tokens.dart';
@@ -70,6 +72,34 @@ class IOSSpec extends PlatformSpec {
   // um furo de câmera pede, e a hora fica ao lado dela, não embaixo.
   @override
   double get systemChromeHeight => 54;
+
+  // Vidro fosco: a doca do iOS é uma superfície própria, com o papel de
+  // parede desfocado por baixo dela.
+  @override
+  Widget dock({required Widget child}) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(surfaceRadius),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                color: tokens.dockFill,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 6,
+                ),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   // Pílula preta centralizada, canto largo e borda grossa: é o iPhone atual.
   @override

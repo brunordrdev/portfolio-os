@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -122,35 +120,21 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(spec.surfaceRadius),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                  child: Container(
-                    color: tokens.dockFill,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 6,
+            spec.dock(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  for (final (index, channel) in _dock.indexed)
+                    AppIcon(
+                      label: dockNames[index],
+                      glyph: AppGlyph(channel.glyph),
+                      hue: tokens.glyphs[channel.hue],
+                      size: 52,
+                      showLabel: false,
+                      // A doca sai do site: não abre app, abre aba.
+                      onTap: (_) => openExternal(channel.url),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        for (final (index, channel) in _dock.indexed)
-                          AppIcon(
-                            label: dockNames[index],
-                            glyph: AppGlyph(channel.glyph),
-                            hue: tokens.glyphs[channel.hue],
-                            size: 52,
-                            showLabel: false,
-                            // A doca sai do site: não abre app, abre aba.
-                            onTap: (_) => openExternal(channel.url),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 14),

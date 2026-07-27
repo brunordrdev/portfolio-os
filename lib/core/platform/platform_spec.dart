@@ -111,6 +111,14 @@ abstract class PlatformSpec {
     required ValueChanged<bool> onChanged,
   });
 
+  /// A doca: como os quatro canais de contato se apoiam no papel de parede.
+  ///
+  /// No iOS eles vivem dentro de um contêiner fosco; no Android ficam soltos
+  /// sobre o papel de parede, sem cápsula e sem desfoque. É estilo de
+  /// plataforma, e até este membro existir ele estava escrito dentro da tela
+  /// inicial — que é o tipo de vazamento que a costura existe para impedir.
+  Widget dock({required Widget child});
+
   /// A moldura física do aparelho, desenhada por cima de tudo.
   ///
   /// É o cromo que não é do sistema operacional e sim do vidro em volta
