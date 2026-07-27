@@ -14,7 +14,7 @@ class ProjectsScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Projetos',
-          style: TextStyle(color: tokens.textPrimary, fontSize: 20),
+          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
         ),
       ),
     );

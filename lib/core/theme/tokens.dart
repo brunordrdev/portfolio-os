@@ -14,7 +14,9 @@ class AppTokens {
     required this.surface,
     required this.surfaceBorder,
     required this.dockFill,
-    required this.textPrimary,
+    required this.onTile,
+    required this.onWallpaper,
+    required this.onWallpaperMuted,
     required this.textSecondary,
     required this.accent,
     required this.badge,
@@ -45,10 +47,22 @@ class AppTokens {
   /// Vidro da doca, com alfa.
   final Color dockFill;
 
-  /// Texto sobre o papel de parede e rótulo de ícone.
-  final Color textPrimary;
+  /// Cor de tudo que é desenhado DENTRO de um ladrilho: o glifo do ícone e
+  /// o número do selo. O ladrilho é escuro no tema escuro e colorido no
+  /// claro, então nos dois casos o que fica em cima dele é claro.
+  ///
+  /// Nunca use isto sobre o papel de parede: foi exatamente essa confusão
+  /// que deixou o rótulo dos ícones em 1,3:1 no tema claro.
+  final Color onTile;
 
-  /// Texto de apoio dentro de superfícies.
+  /// Texto sobre o papel de parede.
+  final Color onWallpaper;
+
+  /// Texto de apoio sobre o papel de parede — data, cargo, dica. Mais fraco
+  /// que `onWallpaper`, mas ainda legível: é cor própria, não alfa por cima.
+  final Color onWallpaperMuted;
+
+  /// Texto de apoio dentro de superfícies claras (cartões, folhas).
   final Color textSecondary;
 
   /// Âmbar da identidade: seleção, foco, destaque.
@@ -91,7 +105,9 @@ class AppTokens {
     // escuro o bastante para não virar contorno desenhado.
     surfaceBorder: Color(0xFF4A4238),
     dockFill: Color(0x9E28241E),
-    textPrimary: Color(0xFFECE5D9),
+    onTile: Color(0xFFECE5D9),
+    onWallpaper: Color(0xFFECE5D9),
+    onWallpaperMuted: Color(0xFFB8AEA0),
     textSecondary: Color(0xFF8D8478),
     accent: Color(0xFFE8A94E),
     badge: Color(0xFFE2532F),
@@ -122,9 +138,11 @@ class AppTokens {
     surface: Color(0xFFFFFFFF),
     surfaceBorder: Color(0xFFE2DBD0),
     dockFill: Color(0x57FFFFFF),
-    textPrimary: Color(0xFFFFFFFF),
+    onTile: Color(0xFFFFFFFF),
+    onWallpaper: Color(0xFF5A4A3A),
+    onWallpaperMuted: Color(0xFF63503F),
     textSecondary: Color(0xFF948B7D),
-    accent: Color(0xFFE2683F),
+    accent: Color(0xFFA64420),
     badge: Color(0xFFE2532F),
     wallpaperTop: Color(0xFFBFE3E0),
     wallpaperMid: Color(0xFFFFE0C4),

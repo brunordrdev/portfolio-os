@@ -52,7 +52,7 @@ class AppIcon extends StatelessWidget {
     // No escuro o ladrilho é neutro e o glifo carrega a matiz. No claro a
     // relação inverte: o ladrilho recebe a matiz e o glifo fica branco.
     final tileColor = isDark ? tokens.surface : hue;
-    final glyphColor = isDark ? hue : tokens.textPrimary;
+    final glyphColor = isDark ? hue : tokens.onTile;
 
     // O selo transborda o canto do ladrilho — é assim que um aviso se lê.
     // Mas nada pintado fora dos limites do widget recebe toque: por isso o
@@ -108,7 +108,7 @@ class AppIcon extends StatelessWidget {
                 count: badge!,
                 diameter: badgeDiameter,
                 fill: tokens.badge,
-                textColor: tokens.textPrimary,
+                textColor: tokens.onTile,
               ),
             ),
         ],
@@ -134,7 +134,7 @@ class AppIcon extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: tokens.textPrimary,
+                color: tokens.onWallpaper,
                 fontSize: spec.appLabelSize,
                 fontWeight: spec.appLabelWeight,
                 height: 1.2,

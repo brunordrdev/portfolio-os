@@ -14,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Ajustes',
-          style: TextStyle(color: tokens.textPrimary, fontSize: 20),
+          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
         ),
       ),
     );

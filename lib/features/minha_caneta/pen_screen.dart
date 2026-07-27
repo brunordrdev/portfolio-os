@@ -14,7 +14,7 @@ class PenScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Minha Caneta',
-          style: TextStyle(color: tokens.textPrimary, fontSize: 20),
+          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
         ),
       ),
     );

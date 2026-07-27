@@ -27,7 +27,7 @@ class StatusBar extends StatelessWidget {
               builder: (context, now) => Text(
                 clockText(now),
                 style: TextStyle(
-                  color: tokens.textPrimary,
+                  color: tokens.onWallpaper,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   fontFamilyFallback: spec.fontFallback,
@@ -37,7 +37,7 @@ class StatusBar extends StatelessWidget {
             ),
             const Spacer(),
             IconTheme(
-              data: IconThemeData(color: tokens.textPrimary, size: 14),
+              data: IconThemeData(color: tokens.onWallpaper, size: 14),
               child: Row(
                 children: [
                   AppGlyph(AppGlyphs.wifi),

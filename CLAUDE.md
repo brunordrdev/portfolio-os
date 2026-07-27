@@ -32,6 +32,21 @@ Comentários em português. Identificadores em inglês.
 6. **Badge em um ícone só** — o projeto mais novo. Vermelho só significa alguma
    coisa se for escasso.
 
+7. **Texto sobre papel de parede usa `onWallpaper` ou `onWallpaperMuted`,
+   nunca `onTile`.** `onTile` é a cor do que é desenhado *dentro* de um
+   ladrilho — o glifo e o número do selo. Os dois papéis pedem cores opostas
+   no tema claro: o ladrilho é colorido e quer texto branco em cima; o papel
+   de parede é claro e quer texto escuro. Um token só para os dois deixou os
+   rótulos da tela inicial em 1,3:1 desde o primeiro commit, invisíveis no
+   tema claro, sem nenhum teste reclamar.
+
+   O piso é **4,5:1 para todo texto sobre o papel de parede, nos quatro
+   modos**, medido no pixel real atrás de cada elemento — não na cor do token.
+   Texto com alfa vale pelo que sobra depois de misturar com o fundo, e é por
+   isso que aqui não se apaga texto com opacidade: quem precisa ser mais
+   fraco usa `onWallpaperMuted`, que é cor própria e passa no piso.
+   `test/contrast_test.dart` cobra isso e falha o CI.
+
 ---
 
 ## Estrutura

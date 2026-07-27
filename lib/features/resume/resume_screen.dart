@@ -14,7 +14,7 @@ class ResumeScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Currículo',
-          style: TextStyle(color: tokens.textPrimary, fontSize: 20),
+          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
         ),
       ),
     );

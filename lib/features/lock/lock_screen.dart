@@ -126,7 +126,7 @@ class _LockScreenState extends State<LockScreen> {
                   builder: (context, time) => Text(
                     clockText(time),
                     style: TextStyle(
-                      color: tokens.textPrimary,
+                      color: tokens.onWallpaper,
                       fontSize: 52,
                       fontWeight: FontWeight.w300,
                       fontFamilyFallback: spec.fontFallback,
@@ -138,7 +138,7 @@ class _LockScreenState extends State<LockScreen> {
                 Text(
                   '${_dateLine(now)} · Aracaju',
                   style: TextStyle(
-                    color: tokens.textPrimary.withValues(alpha: 0.62),
+                    color: tokens.onWallpaperMuted,
                     fontSize: 13,
                     fontFamilyFallback: spec.fontFallback,
                   ),
@@ -158,7 +158,7 @@ class _LockScreenState extends State<LockScreen> {
                 Text(
                   'me chamo Bruno',
                   style: TextStyle(
-                    color: tokens.textPrimary,
+                    color: tokens.onWallpaper,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     fontFamilyFallback: spec.fontFallback,
@@ -168,7 +168,7 @@ class _LockScreenState extends State<LockScreen> {
                 Text(
                   'desenvolvedor mobile',
                   style: TextStyle(
-                    color: tokens.textPrimary.withValues(alpha: 0.58),
+                    color: tokens.onWallpaperMuted,
                     fontSize: 12,
                     fontFamilyFallback: spec.fontFallback,
                   ),
@@ -176,7 +176,7 @@ class _LockScreenState extends State<LockScreen> {
                 const Spacer(),
                 IconTheme(
                   data: IconThemeData(
-                    color: tokens.textPrimary.withValues(alpha: 0.7),
+                    color: tokens.onWallpaperMuted,
                     size: 20,
                   ),
                   child: AppGlyph(AppGlyphs.arrowUp),
@@ -185,7 +185,7 @@ class _LockScreenState extends State<LockScreen> {
                 Text(
                   'arraste para cima',
                   style: TextStyle(
-                    color: tokens.textPrimary.withValues(alpha: 0.7),
+                    color: tokens.onWallpaperMuted,
                     fontSize: 12,
                     fontFamilyFallback: spec.fontFallback,
                   ),
