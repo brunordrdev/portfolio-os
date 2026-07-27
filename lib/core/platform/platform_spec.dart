@@ -118,6 +118,15 @@ abstract class PlatformSpec {
   /// Corpo do rótulo abaixo do ícone.
   double get appLabelSize;
 
+  /// Multiplicador do texto de leitura das telas de conteúdo.
+  ///
+  /// Régua própria. Antes as telas de leitura derivavam a escala de
+  /// `appLabelSize`, que existe para rótulo de ícone: funcionava por
+  /// coincidência, porque os dois números caminhavam juntos, e teria
+  /// quebrado em silêncio no dia em que alguém mexesse no rótulo por motivo
+  /// de rótulo. Proxy que funciona por coincidência é bug com pavio.
+  double get readingScale;
+
   /// Peso do rótulo abaixo do ícone.
   FontWeight get appLabelWeight;
 

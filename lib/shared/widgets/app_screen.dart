@@ -79,9 +79,9 @@ class _AppScreenState extends State<AppScreen> {
     final spec = context.platform;
     final tokens = context.tokens;
 
-    // A escala sai da pele: o Android pede texto um pouco maior que o iOS, e
-    // `appLabelSize` é a medida que a costura já tem para isso.
-    final scale = spec.appLabelSize / 11;
+    // Régua própria da costura. Já foi derivada de `appLabelSize`, que é
+    // medida de rótulo de ícone — funcionava, mas por coincidência.
+    final scale = spec.readingScale;
 
     return Scaffold(
       backgroundColor: tokens.background,

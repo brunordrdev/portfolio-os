@@ -50,6 +50,10 @@ class IOSSpec extends PlatformSpec {
   @override
   FontWeight get appLabelWeight => FontWeight.w400;
 
+  // A referência: o corpo de leitura do projeto foi desenhado no iOS.
+  @override
+  double get readingScale => 1;
+
   // A barra de gesto do iOS: larga, fina e clara.
   @override
   Widget bottomChrome() {

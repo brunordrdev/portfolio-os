@@ -52,6 +52,10 @@ class AndroidSpec extends PlatformSpec {
   @override
   FontWeight get appLabelWeight => FontWeight.w500;
 
+  // O Material pede corpo um pouco maior que o iOS na leitura corrida.
+  @override
+  double get readingScale => 1.09;
+
   // A pílula da navegação por gestos do Android: mais estreita que a do iOS
   // e mais grossa, com as pontas em semicírculo.
   @override
