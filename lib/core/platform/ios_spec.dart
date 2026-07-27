@@ -56,12 +56,16 @@ class IOSSpec extends PlatformSpec {
     return Builder(
       builder: (context) {
         final tokens = context.tokens;
-        return Container(
-          width: 134,
-          height: 5,
-          decoration: BoxDecoration(
-            color: tokens.onWallpaperMuted,
-            borderRadius: BorderRadius.circular(3),
+        // 12 + 5 + 17: os 34 que o iOS reserva na base.
+        return Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 17),
+          child: Container(
+            width: 134,
+            height: 5,
+            decoration: BoxDecoration(
+              color: tokens.onWallpaperMuted,
+              borderRadius: BorderRadius.circular(3),
+            ),
           ),
         );
       },

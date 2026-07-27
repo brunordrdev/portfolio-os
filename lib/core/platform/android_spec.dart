@@ -59,12 +59,16 @@ class AndroidSpec extends PlatformSpec {
     return Builder(
       builder: (context) {
         final tokens = context.tokens;
-        return Container(
-          width: 108,
-          height: 4,
-          decoration: BoxDecoration(
-            color: tokens.onWallpaperMuted,
-            borderRadius: BorderRadius.circular(2),
+        // 6 + 4 + 6: os 16 da área de gesto do Android.
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Container(
+            width: 108,
+            height: 4,
+            decoration: BoxDecoration(
+              color: tokens.onWallpaperMuted,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
         );
       },

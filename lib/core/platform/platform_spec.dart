@@ -115,12 +115,17 @@ abstract class PlatformSpec {
 
   // --- Moldura do sistema -------------------------------------------------
 
-  /// O cromo da base: a peça que a plataforma desenha embaixo de tudo.
+  /// O cromo da base: a peça que a plataforma desenha embaixo de tudo, com
+  /// a folga que ela reserva em volta.
   ///
   /// Era um booleano, e o booleano mentia: "tem indicador de home" só faz
   /// pergunta sobre o iOS, e a resposta do Android era não por falta de
   /// vocabulário, não por não ter nada ali. As duas plataformas desenham
-  /// alguma coisa na base; o que muda é a forma.
+  /// alguma coisa na base; o que muda é a forma — e o quanto de tela elas
+  /// tiram junto. O iOS reserva cerca de 34 na base; o Android, 16.
+  ///
+  /// A folga vem embutida porque peça e espaço são a mesma decisão: entregar
+  /// só a peça foi o que deixou as telas chumbando o espaço em volta dela.
   Widget bottomChrome();
 
   /// Altura da barra de status no topo.
