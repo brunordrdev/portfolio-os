@@ -18,7 +18,11 @@ class AppTokens {
     required this.textSecondary,
     required this.accent,
     required this.badge,
+    required this.wallpaperTop,
+    required this.wallpaperMid,
+    required this.wallpaperBottom,
     required this.coolGlow,
+    required this.warmGlow,
     required this.glyphs,
   });
 
@@ -53,9 +57,26 @@ class AppTokens {
   /// Vermelho do selo. Escasso de propósito — um ícone só o usa.
   final Color badge;
 
-  /// Azul do brilho frio do papel de parede, no canto oposto ao acento.
-  /// Entra sempre com alfa baixo: é luz, não superfície.
+  // --- Papel de parede: "Noite de Aracaju" --------------------------------
+  //
+  // Mar em cima, cidade embaixo. As três paradas fazem a base e os dois
+  // brilhos entram por fora da tela, um de cada ponta. Os brilhos já vêm
+  // com alfa embutido: são luz, não superfície.
+
+  /// Parada de cima da base — o lado frio.
+  final Color wallpaperTop;
+
+  /// Parada do meio da base, onde as duas temperaturas se cruzam.
+  final Color wallpaperMid;
+
+  /// Parada de baixo da base — o lado quente.
+  final Color wallpaperBottom;
+
+  /// Luz fria, vindo de cima.
   final Color coolGlow;
+
+  /// Luz quente, vindo de baixo.
+  final Color warmGlow;
 
   /// Matizes dos glifos, uma por app, na ordem da grade.
   final List<Color> glyphs;
@@ -74,7 +95,11 @@ class AppTokens {
     textSecondary: Color(0xFF8D8478),
     accent: Color(0xFFE8A94E),
     badge: Color(0xFFE2532F),
-    coolGlow: Color(0xFF5A7896),
+    wallpaperTop: Color(0xFF0A1113),
+    wallpaperMid: Color(0xFF100D0B),
+    wallpaperBottom: Color(0xFF191009),
+    coolGlow: Color(0x66386E7C),
+    warmGlow: Color(0x57F0A046),
     glyphs: [
       Color(0xFFE29070),
       Color(0xFF69BDB0),
@@ -101,7 +126,11 @@ class AppTokens {
     textSecondary: Color(0xFF948B7D),
     accent: Color(0xFFE2683F),
     badge: Color(0xFFE2532F),
-    coolGlow: Color(0xFF5A7896),
+    wallpaperTop: Color(0xFFBFE3E0),
+    wallpaperMid: Color(0xFFFFE0C4),
+    wallpaperBottom: Color(0xFFFFCBA4),
+    coolGlow: Color(0x427FC9C0),
+    warmGlow: Color(0x4DFF9E5C),
     glyphs: [
       Color(0xFFE2532F),
       Color(0xFF159183),
