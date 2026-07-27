@@ -6,6 +6,7 @@ import '../core/platform/platform_scope.dart';
 import '../core/platform/platform_spec.dart';
 import '../core/theme/tokens.dart';
 import 'router.dart';
+import 'web_stage.dart';
 
 /// Raiz do portfólio: a costura da plataforma e a paleta ficam acima do app,
 /// para que virar qualquer uma das duas chaves não encoste em tela nenhuma.
@@ -92,6 +93,9 @@ class _PortfolioAppState extends State<PortfolioApp>
               debugShowCheckedModeBanner: false,
               routerConfig: _router,
               theme: _themeFrom(tokens, context.platform),
+              // O interruptor de plataforma fica fora das telas e dentro do
+              // Flutter: nenhuma tela sabe que ele existe.
+              builder: webStage,
             ),
           ),
         ),

@@ -8,6 +8,7 @@ import 'package:portfolio_os/app/router.dart';
 import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
+import 'package:portfolio_os/app/web_stage.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
 import 'package:portfolio_os/features/home/home_screen.dart';
 import 'package:portfolio_os/features/lock/lock_screen.dart';
@@ -125,6 +126,54 @@ void main() {
         });
       }
     }
+  }
+
+  /// A composição da superfície Flutter dos dois lados do ponto de quebra.
+  ///
+  /// Acima dele o CSS dá a esta superfície 390x908 — celular mais o queixo com
+  /// o interruptor. Abaixo, ela é a tela inteira. O que o retrato não pega é a
+  /// coluna de texto ao lado, que é HTML: quem confere aquilo é o curl na URL
+  /// publicada, porque é assim que um rastreador a vê.
+  for (final stage in const <String, Size>{
+    'acima-do-corte': Size(390, 908),
+    'abaixo-do-corte': Size(390, 844),
+  }.entries) {
+    testWidgets('retrato da composição ${stage.key}', (tester) async {
+      await withClock(Clock.fixed(frozen), () async {
+        tester.view.physicalSize = stage.value;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        final controller = PlatformController(PlatformController.ios);
+        final router = createRouter(initialLocation: Routes.home);
+        addTearDown(controller.dispose);
+        addTearDown(router.dispose);
+
+        await tester.pumpWidget(
+          PlatformScope(
+            controller: controller,
+            child: ContentScope(
+              content: AppContent.pt,
+              child: TokensScope(
+                tokens: AppTokens.dark,
+                child: MaterialApp.router(
+                  routerConfig: router,
+                  debugShowCheckedModeBanner: false,
+                  builder: webStage,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PlatformSwitchBar), findsOneWidget);
+        await expectLater(
+          find.byType(MaterialApp),
+          matchesGoldenFile('goldens/composicao-${stage.key}.png'),
+        );
+      });
+    });
   }
 
   testWidgets('retrato do bloqueio', (tester) async {

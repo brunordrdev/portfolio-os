@@ -1,46 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Desenvolvimento mobile em Flutter: um app só, com a pele de cada plataforma.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Bruno Rodrigues, desenvolvedor mobile em Aracaju. Portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Open Graph, para quando o endereço for colado em algum lugar. -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://brunordrdev.com/">
+  <meta property="og:site_name" content="Bruno Rodrigues">
+  <meta property="og:title" content="Bruno R. — Mobile Engineer">
+  <meta property="og:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
+  <meta property="og:image" content="icons/Icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bruno R. — Mobile Engineer">
+  <meta name="twitter:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
+
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="portfolio_os">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <title>Bruno R. — Mobile Engineer</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /*
+      As cores são cópia dos tokens de lib/core/theme/tokens.dart. CSS não
+      consegue ler Dart, então este é o único lugar do projeto onde um valor
+      de cor existe duas vezes. `test/web_frame_test.dart` compara os dois e
+      falha se divergirem — sem isso, a moldura descolaria do sistema na
+      primeira troca de paleta e ninguém veria.
+    */
+    :root {
+      --frame-bg: #FFC9AE;      /* AppTokens.light.background */
+      --frame-ink: #5A4A3A;     /* AppTokens.light.onWallpaper */
+      --frame-muted: #63503F;   /* AppTokens.light.onWallpaperMuted */
+      --frame-accent: #A64420;  /* AppTokens.light.accent */
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --frame-bg: #16130F;    /* AppTokens.dark.background */
+        --frame-ink: #ECE5D9;   /* AppTokens.dark.onWallpaper */
+        --frame-muted: #B8AEA0; /* AppTokens.dark.onWallpaperMuted */
+        --frame-accent: #E8A94E;/* AppTokens.dark.accent */
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--frame-bg);
+      color: var(--frame-ink);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .frame {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 96px;
+      min-height: 100dvh;
+      padding: 56px;
+    }
+
+    .copy { max-width: 46ch; }
+
+    .copy h1 {
+      margin: 0 0 6px;
+      font-size: 40px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      font-weight: 600;
+    }
+
+    .copy .role {
+      margin: 0 0 28px;
+      color: var(--frame-accent);
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .copy p.lede { margin: 0 0 18px; color: var(--frame-ink); }
+    .copy p.aside { margin: 0; color: var(--frame-muted); font-size: 14.5px; }
+
+    /*
+      O Flutter é carregado dentro desta caixa, e não no body: acima do ponto
+      de quebra ela tem o tamanho de um celular, abaixo dele ocupa a tela.
+      Quem decide é o CSS; o Dart não precisa saber de nada disso.
+    */
+    #stage {
+      flex: none;
+      width: 390px;
+      height: min(908px, calc(100dvh - 112px));
+      border-radius: 42px;
+      overflow: hidden;
+      background: var(--frame-bg);
+      box-shadow: 0 32px 90px rgba(0, 0, 0, 0.42);
+    }
+
+    /*
+      Abaixo do ponto de quebra a moldura some e o Flutter ocupa tudo: no
+      celular ele é o próprio app. O texto continua no documento, coberto em
+      vez de removido — um rastreador com viewport de celular ainda precisa
+      encontrá-lo, e é para isso que ele existe.
+    */
+    @media (max-width: 899px) {
+      body { overflow: hidden; }
+      #stage {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        width: auto;
+        height: auto;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
 </head>
 <body>
   <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+    Este texto é o único do projeto fora de lib/content/, e é de propósito.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
+    O Flutter web desenha numa tela de canvas: nada do que ele escreve entra
+    no DOM, então nada do que ele escreve é indexado. Um portfólio que não
+    aparece em busca nenhuma falha no trabalho que tem. Por isso o nome, o
+    cargo, a cidade e um parágrafo curto existem aqui como HTML de verdade —
+    servidos no primeiro byte, sem depender de JavaScript.
+
+    Se o texto do sistema mudar, este aqui não muda junto. É a duplicação
+    aceita em troca de existir para quem procura.
   -->
+  <main class="frame">
+    <section class="copy">
+      <h1>Bruno Rodrigues</h1>
+      <p class="role">Desenvolvedor mobile · Aracaju, Brasil</p>
+      <p class="lede">
+        Sou o único desenvolvedor de quatro aplicativos em produção usados por
+        mais de cem empresas no Brasil, em Flutter e Kotlin nativo, com os
+        backends em Java e SQL Server por trás deles.
+      </p>
+      <p class="aside">
+        Este portfólio é um sistema operacional móvel escrito em Flutter. Ele
+        troca de pele entre iOS e Android com o mesmo código — a demonstração
+        é o próprio site.
+      </p>
+    </section>
+
+    <div id="stage"></div>
+  </main>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
