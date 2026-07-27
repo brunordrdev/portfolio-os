@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../theme/tokens.dart';
 import '../../shared/widgets/app_glyph.dart';
+import '../../shared/widgets/device_frame.dart';
 import 'platform_spec.dart';
 
 /// A pele iOS: cantos de esquadro contínuo, curvas cúbicas e toque sem
@@ -65,8 +66,30 @@ class IOSSpec extends PlatformSpec {
     );
   }
 
+  // A Dynamic Island empurra tudo para baixo: o iOS reserva mais topo do que
+  // um furo de câmera pede, e a hora fica ao lado dela, não embaixo.
   @override
-  double get systemChromeHeight => 22;
+  double get systemChromeHeight => 54;
+
+  // Pílula preta centralizada, canto largo e borda grossa: é o iPhone atual.
+  @override
+  Widget deviceFrame() {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return CustomPaint(
+          painter: DeviceFramePainter(
+            cornerRadius: 48,
+            borderWidth: 2,
+            bezel: tokens.deviceBezel,
+            cutout: const Size(125, 36),
+            cutoutTop: 11,
+            cutoutRadius: 18,
+          ),
+        );
+      },
+    );
+  }
 
   // Só a borda esquerda: no iOS a direita não volta.
   @override

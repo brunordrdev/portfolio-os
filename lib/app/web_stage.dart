@@ -14,16 +14,49 @@ import '../core/theme/tokens.dart';
 /// Acima do ponto de quebra o CSS dá a esta superfície o tamanho de um
 /// celular, então o queixo vira a base do aparelho. Abaixo dele a superfície
 /// é a tela inteira, e o queixo vira uma barra no rodapé.
+/// O aparelho: o sistema com a moldura física por cima.
+///
+/// Separado da composição porque são coisas de dono diferente — a moldura é
+/// hardware, e o queixo com o interruptor é cromo do site. Quem compara as
+/// duas peles quer ver a primeira sem a segunda no caminho.
+Widget deviceSurface(BuildContext context, Widget? child) {
+  return Stack(
+    children: [
+      child ?? const SizedBox.shrink(),
+      // A moldura fica por cima de tudo e não recebe toque: ela é o vidro do
+      // aparelho, não parte do sistema desenhado dentro dele.
+      Positioned.fill(child: IgnorePointer(child: _DeviceFrame())),
+    ],
+  );
+}
+
 Widget webStage(BuildContext context, Widget? child) {
   return Column(
     // Sem esticar, o Column centraliza e o queixo encolhe até o tamanho do
     // conteúdo, deixando a tela do MaterialApp aparecer dos lados.
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Expanded(child: child ?? const SizedBox.shrink()),
+      Expanded(
+        child: Stack(
+          children: [
+            child ?? const SizedBox.shrink(),
+            // A moldura fica por cima de tudo e não recebe toque: ela é o
+            // vidro do aparelho, não parte do sistema desenhado dentro dele.
+            Positioned.fill(child: IgnorePointer(child: _DeviceFrame())),
+          ],
+        ),
+      ),
       const PlatformSwitchBar(),
     ],
   );
+}
+
+/// A moldura física, pedida à pele ativa.
+class _DeviceFrame extends StatelessWidget {
+  const _DeviceFrame();
+
+  @override
+  Widget build(BuildContext context) => context.platform.deviceFrame();
 }
 
 /// O interruptor iOS ↔ Android.

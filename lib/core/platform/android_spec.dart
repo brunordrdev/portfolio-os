@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import '../../shared/widgets/device_frame.dart';
 import 'platform_spec.dart';
 
 /// A pele Android, no Material 3.
@@ -70,8 +71,31 @@ class AndroidSpec extends PlatformSpec {
     );
   }
 
+  // Um furo de câmera ocupa muito menos que uma ilha, então o Android
+  // reserva menos topo — mas ainda mais do que os 26 de antes, que deixavam
+  // a barra colada na borda.
   @override
-  double get systemChromeHeight => 26;
+  double get systemChromeHeight => 32;
+
+  // Furo de câmera redondo, canto mais fechado e borda fina.
+  @override
+  Widget deviceFrame() {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return CustomPaint(
+          painter: DeviceFramePainter(
+            cornerRadius: 28,
+            borderWidth: 1.5,
+            bezel: tokens.deviceBezel,
+            cutout: const Size(18, 18),
+            cutoutTop: 14,
+            cutoutRadius: 9,
+          ),
+        );
+      },
+    );
+  }
 
   // Qualquer borda lateral volta.
   @override

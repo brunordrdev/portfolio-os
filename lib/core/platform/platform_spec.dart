@@ -111,6 +111,14 @@ abstract class PlatformSpec {
     required ValueChanged<bool> onChanged,
   });
 
+  /// A moldura física do aparelho, desenhada por cima de tudo.
+  ///
+  /// É o cromo que não é do sistema operacional e sim do vidro em volta
+  /// dele: o canto arredondado da tela, a borda e o recorte da câmera. É a
+  /// diferença que se vê antes de ler qualquer coisa — pílula centralizada
+  /// de um lado, furo redondo do outro.
+  Widget deviceFrame();
+
   /// Cabeçalho de uma tela de app, como sliver.
   ///
   /// É a diferença de plataforma mais visível do sistema: no iOS um título

@@ -24,6 +24,7 @@ class AppTokens {
     required this.wallpaperTop,
     required this.wallpaperMid,
     required this.wallpaperBottom,
+    required this.deviceBezel,
     required this.coolGlow,
     required this.warmGlow,
     required this.glyphs,
@@ -96,6 +97,12 @@ class AppTokens {
   /// Parada de baixo da base — o lado quente.
   final Color wallpaperBottom;
 
+  /// A moldura física do aparelho: cantos, borda e o recorte da câmera.
+  ///
+  /// Preta nos dois temas, porque moldura de aparelho é preta — ela não é
+  /// superfície do sistema, é o vidro em volta dele.
+  final Color deviceBezel;
+
   /// Luz fria, vindo de cima.
   final Color coolGlow;
 
@@ -125,6 +132,7 @@ class AppTokens {
     wallpaperTop: Color(0xFF0A1113),
     wallpaperMid: Color(0xFF100D0B),
     wallpaperBottom: Color(0xFF191009),
+    deviceBezel: Color(0xFF000000),
     coolGlow: Color(0x66386E7C),
     warmGlow: Color(0x57F0A046),
     glyphs: [
@@ -160,6 +168,7 @@ class AppTokens {
     wallpaperTop: Color(0xFFBFE3E0),
     wallpaperMid: Color(0xFFFFE0C4),
     wallpaperBottom: Color(0xFFFFCBA4),
+    deviceBezel: Color(0xFF000000),
     coolGlow: Color(0x427FC9C0),
     warmGlow: Color(0x4DFF9E5C),
     glyphs: [

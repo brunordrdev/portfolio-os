@@ -105,6 +105,12 @@ texto indexável na moldura web.
 pastas, espanhol, gaveta de apps, central de notificações, widgets, múltiplas
 páginas, backend na casca.
 
+**Estacionado com gatilho — barra de busca do Android.** A pele Android pede
+uma, e ela é fácil de desenhar. Só entra no dia em que buscar de verdade no
+conteúdo do site: busca que não busca é enfeite, e enfeite é proibido pela
+regra 5. O gatilho é existir conteúdo que valha procurar — hoje são seis telas
+e uma delas é a própria busca.
+
 **Estacionado — ícones da barra de status em Material Symbols.** Wifi e
 bateria são desenhados pelo conjunto traçado próprio nas duas peles. Trocá-los
 pelos do Material no Android daria pouca fidelidade e traria dependência de

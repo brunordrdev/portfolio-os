@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/app/web_stage.dart';
 import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
@@ -40,6 +41,9 @@ void main() {
               child: MaterialApp.router(
                 routerConfig: router,
                 debugShowCheckedModeBanner: false,
+                // Com a moldura física, sem o queixo do site: o que se
+                // compara aqui é o aparelho.
+                builder: deviceSurface,
               ),
             ),
           ),
