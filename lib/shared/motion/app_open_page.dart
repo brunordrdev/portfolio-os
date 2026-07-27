@@ -58,8 +58,20 @@ class AppOpenRoute<T> extends PageRoute<T> {
   Curve get openCurve => _page.spec.openCurve;
   Curve get closeCurve => _page.spec.closeCurve;
 
+  /// O raio de onde o movimento começa. Sai do ladrilho de verdade que abriu
+  /// o app — 60 na grade, 52 na doca —, e não de um tamanho de referência: o
+  /// retângulo da origem já carrega o lado, então perguntar a ele é a única
+  /// forma de os dois não poderem discordar.
+  double? get originRadius {
+    final origin = _page.origin;
+    if (origin == null) return null;
+    return _page.spec.iconRadius(origin.rect.width).topLeft.x;
+  }
+
+  /// Sem ladrilho de origem não há de onde crescer, e a entrada é seca.
   @override
-  Duration get transitionDuration => _page.spec.openDuration;
+  Duration get transitionDuration =>
+      _page.origin == null ? Duration.zero : _page.spec.openDuration;
 
   @override
   Duration get reverseTransitionDuration => _page.spec.closeDuration;
@@ -99,7 +111,12 @@ class AppOpenRoute<T> extends PageRoute<T> {
     Widget child,
   ) {
     final origin = _page.origin;
-    if (origin == null) return child;
+    if (origin == null) {
+      // Entrada seca, porque a duração de ida é zero. Mas a volta não pode
+      // ser: um deep link também tem gesto de voltar, e sem nada acontecendo
+      // enquanto o dedo anda ele viraria um tempo morto até o app sumir.
+      return FadeTransition(opacity: animation, child: child);
+    }
 
     _eased ??= CurvedAnimation(
       parent: animation,
@@ -115,7 +132,7 @@ class AppOpenRoute<T> extends PageRoute<T> {
       progress: dragging ? animation : _eased!,
       origin: origin,
       background: _page.background,
-      cornerRadius: _page.spec.iconRadius(54).topLeft.x,
+      cornerRadius: originRadius!,
       child: child,
     );
   }

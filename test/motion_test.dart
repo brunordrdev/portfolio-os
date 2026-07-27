@@ -9,6 +9,7 @@ import 'package:portfolio_os/features/about/about_screen.dart';
 import 'package:portfolio_os/features/home/home_screen.dart';
 import 'package:portfolio_os/features/lock/lock_screen.dart';
 import 'package:portfolio_os/shared/motion/app_open_page.dart';
+import 'package:portfolio_os/shared/widgets/app_icon.dart';
 
 /// O movimento da casca: abrir, fechar e voltar.
 ///
@@ -99,6 +100,44 @@ void main() {
           expect(origin.width, lessThan(screen.width / 3));
           expect(origin.center.dx, greaterThan(screen.width / 2));
           expect(origin.center.dy, lessThan(screen.height / 3));
+        });
+
+        // O raio de partida sai do ladrilho de verdade. Grade e doca têm
+        // lados diferentes, e um número de referência chumbado sempre estaria
+        // errado para pelo menos um dos dois.
+        testWidgets('o movimento parte do tamanho do ladrilho da grade', (
+          tester,
+        ) async {
+          await openApp(tester);
+          final route = openRoute(tester);
+          final origin = (route.settings as AppOpenPage).origin!;
+
+          expect(origin.rect.width, 60);
+          expect(route.originRadius, spec.iconRadius(60).topLeft.x);
+        });
+
+        testWidgets('o movimento parte do tamanho do ladrilho da doca', (
+          tester,
+        ) async {
+          await openApp(tester);
+          // Volta para casa e abre pela doca, que tem ladrilho menor.
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+
+          await tester.tap(
+            find.byWidgetPredicate(
+              (w) => w is AppIcon && w.label == 'GitHub',
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final route =
+              ModalRoute.of(tester.element(find.text('GitHub').first))!
+                  as AppOpenRoute;
+          final origin = (route.settings as AppOpenPage).origin!;
+
+          expect(origin.rect.width, 52);
+          expect(route.originRadius, spec.iconRadius(52).topLeft.x);
         });
 
         testWidgets('o app tapa o que está atrás', (tester) async {
@@ -205,6 +244,75 @@ void main() {
 
           expect(find.byType(HomeScreen), findsOneWidget);
           expect(find.byType(AboutScreen), findsNothing);
+        });
+
+        // Entrar direto pela URL. Um celular sintetiza a pilha do deep link,
+        // e aqui é igual: o gesto de voltar não pode depender de por onde o
+        // visitante entrou.
+        group('deep link', () {
+          Future<AppOpenRoute> enterByUrl(WidgetTester tester) async {
+            tester.view.physicalSize = screen;
+            tester.view.devicePixelRatio = 1;
+            addTearDown(tester.view.reset);
+
+            final controller = PlatformController(spec);
+            final router = createRouter(initialLocation: Routes.about);
+            addTearDown(controller.dispose);
+            addTearDown(router.dispose);
+
+            await tester.pumpWidget(
+              PlatformScope(
+                controller: controller,
+                child: TokensScope(
+                  tokens: palette.value,
+                  child: MaterialApp.router(
+                    routerConfig: router,
+                    debugShowCheckedModeBanner: false,
+                  ),
+                ),
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            expect(find.byType(AboutScreen), findsOneWidget);
+            return ModalRoute.of(tester.element(find.byType(AboutScreen)))!
+                as AppOpenRoute;
+          }
+
+          testWidgets('monta a tela inicial embaixo', (tester) async {
+            final route = await enterByUrl(tester);
+
+            expect(
+              route.isFirst,
+              isFalse,
+              reason: 'o app precisa ter para onde voltar',
+            );
+            expect(
+              find.byType(HomeScreen, skipOffstage: false),
+              findsOneWidget,
+            );
+          });
+
+          testWidgets('entra sem transição de abertura', (tester) async {
+            final route = await enterByUrl(tester);
+
+            expect((route.settings as AppOpenPage).origin, isNull);
+            expect(route.transitionDuration, Duration.zero);
+          });
+
+          testWidgets('o gesto de voltar funciona igual', (tester) async {
+            await enterByUrl(tester);
+
+            await tester.flingFrom(
+              const Offset(6, 400),
+              const Offset(320, 0),
+              900,
+            );
+            await tester.pumpAndSettle();
+
+            expect(find.byType(HomeScreen), findsOneWidget);
+            expect(find.byType(AboutScreen), findsNothing);
+          });
         });
       });
     }

@@ -32,6 +32,20 @@ abstract final class Routes {
   static const String github = '/github';
 }
 
+/// As dez rotas que são app. Entrar direto numa delas é um deep link.
+const Set<String> _appPaths = {
+  Routes.pen,
+  Routes.projects,
+  Routes.about,
+  Routes.experience,
+  Routes.resume,
+  Routes.settings,
+  Routes.phone,
+  Routes.email,
+  Routes.linkedin,
+  Routes.github,
+};
+
 /// Monta a página de um app: o ladrilho cresce até virar a tela.
 ///
 /// A rota lê a pele e a paleta daqui e as entrega prontas ao movimento —
@@ -51,9 +65,31 @@ Page<void> _appPage(BuildContext context, GoRouterState state, Widget child) {
 }
 
 /// Monta o roteador.
-GoRouter createRouter() {
-  return GoRouter(
-    initialLocation: Routes.lock,
+///
+/// `initialLocation` existe para o teste poder entrar direto num app, que é
+/// o caminho do deep link. Na web quem manda é a URL do navegador.
+GoRouter createRouter({String initialLocation = Routes.lock}) {
+  late final GoRouter router;
+
+  // A síntese de pilha vale só para a primeira entrada. Depois dela, navegar
+  // é navegar: quem empilha é o toque no ladrilho.
+  var entered = false;
+
+  router = GoRouter(
+    initialLocation: initialLocation,
+    redirect: (context, state) {
+      if (entered) return null;
+      entered = true;
+      final path = state.uri.path;
+      if (!_appPaths.contains(path)) return null;
+
+      // Entrar direto num app é chegar sem ter passado pela tela inicial, e
+      // aí não haveria para onde voltar. Um celular de verdade sintetiza a
+      // pilha do deep link; aqui é o mesmo: a tela inicial entra embaixo e o
+      // app por cima, para o gesto de voltar funcionar em qualquer entrada.
+      WidgetsBinding.instance.addPostFrameCallback((_) => router.push(path));
+      return Routes.home;
+    },
     routes: [
       GoRoute(
         path: Routes.lock,
@@ -140,4 +176,6 @@ GoRouter createRouter() {
       ),
     ],
   );
+
+  return router;
 }
