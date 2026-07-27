@@ -14,7 +14,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Os retratos comparam pixel a pixel, e pixel depende de quem desenha: os
+  # mesmos widgets saem com 1,13% dos pontos diferentes num Mac arm64 e num
+  # Linux x64. É mais do que a menor regressão real que dá para produzir de
+  # propósito (0,40%), então não existe limiar que separe ruído de defeito.
+  # A saída é conferir na mesma plataforma em que foram gerados.
+  goldens:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.4
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter test --tags golden
+
   build:
+    # Publicar sem os retratos conferidos seria publicar pintura sem gate.
+    needs: goldens
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +105,8 @@ jobs:
           fi
           echo "Costura íntegra: só lib/core/platform/ conhece a plataforma."
 
-      - run: flutter test
+      # Os retratos rodam no outro job, na plataforma deles.
+      - run: flutter test --exclude-tags golden
 
       - run: flutter build web --release
 

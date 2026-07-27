@@ -1,3 +1,6 @@
+@Tags(['golden'])
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
@@ -15,6 +18,15 @@ import 'package:portfolio_os/features/lock/lock_screen.dart';
 ///
 /// Nos retratos o texto sai como caixas cheias: a fonte de teste do Flutter
 /// não tem desenho de letra. É de propósito, e é o que os torna estáveis.
+///
+/// Estão marcados com a etiqueta `golden` porque comparam pixel a pixel, e
+/// pixel depende de quem desenha: os mesmos widgets num Mac arm64 e num Linux
+/// x64 divergem em 1,13% dos pontos — mais do que a menor regressão real que
+/// dá para produzir de propósito, que é 0,40%. Nenhum limiar separa os dois.
+/// Por isso o CI roda esta etiqueta num runner macOS e o resto no Linux.
+/// Regerar, depois de uma mudança visual de propósito:
+///
+///     flutter test --update-goldens test/golden_test.dart
 void main() {
   Future<void> boot(WidgetTester tester, AppTokens tokens) async {
     tester.view.physicalSize = const Size(390, 844);

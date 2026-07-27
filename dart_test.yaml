@@ -1,0 +1,7 @@
+# Declara as etiquetas usadas na suíte, para o test não avisar que não
+# conhece nenhuma delas.
+tags:
+  golden:
+    description: >-
+      Retratos de tela. Comparam pixel a pixel, então só valem na plataforma
+      em que foram gerados — no CI, num runner macOS.
