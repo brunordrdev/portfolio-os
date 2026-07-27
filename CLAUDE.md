@@ -84,6 +84,14 @@ texto indexável na moldura web.
 pastas, espanhol, gaveta de apps, central de notificações, widgets, múltiplas
 páginas, backend na casca.
 
+**Estacionado com gatilho:** `accent` se divide em `accent` e
+`accentOnWallpaper` **se** algum dia for preciso accent vivo sobre superfície no
+tema claro. Hoje não é. O accent claro foi escurecido para `#A64420` porque o
+"olá" da tela de bloqueio é escrito nele e reprovava em 2,65:1 sobre o papel de
+parede. Enquanto o único texto em accent estiver sobre o papel de parede, um
+token resolve; no dia em que aparecer accent dentro de um cartão branco, aí sim
+são dois papéis diferentes e a divisão se paga.
+
 Sugestões de escopo novo vão para a seção de estacionamento, não para o código.
 
 ## Backend

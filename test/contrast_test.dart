@@ -43,6 +43,33 @@ double _contrast(double a, double b) =>
 
 int _byte(double component) => (component * 255).round().clamp(0, 255);
 
+/// Razão entre um texto e o fundo em que ele foi pintado.
+///
+/// Texto translúcido não vale pela cor do token: vale pelo que sobra depois
+/// de misturar com o fundo. Sem compor antes de medir, o número mente a
+/// favor — foi assim que "arraste para cima" com 70% de opacidade passou por
+/// legível durante semanas.
+({double ratio, String front, String back}) _measure(
+  Color text,
+  int backR,
+  int backG,
+  int backB,
+) {
+  final alpha = text.a;
+  final frontR = (_byte(text.r) * alpha + backR * (1 - alpha)).round();
+  final frontG = (_byte(text.g) * alpha + backG * (1 - alpha)).round();
+  final frontB = (_byte(text.b) * alpha + backB * (1 - alpha)).round();
+
+  return (
+    ratio: _contrast(
+      _luminance(frontR, frontG, frontB),
+      _luminance(backR, backG, backB),
+    ),
+    front: _hex(frontR, frontG, frontB),
+    back: _hex(backR, backG, backB),
+  );
+}
+
 void main() {
   const skins = <String, PlatformSpec>{
     'iOS': PlatformController.ios,
@@ -152,30 +179,17 @@ void main() {
             final y = position.dy.round().clamp(0, image.height - 1);
             final index = (y * width + x) * 4;
 
-            final backR = pixels[index];
-            final backG = pixels[index + 1];
-            final backB = pixels[index + 2];
-
-            // Texto translúcido não vale pela cor do token: vale pelo que
-            // sobra depois de misturar com o fundo.
-            final alpha = color.a;
-            final frontR = (_byte(color.r) * alpha + backR * (1 - alpha))
-                .round();
-            final frontG = (_byte(color.g) * alpha + backG * (1 - alpha))
-                .round();
-            final frontB = (_byte(color.b) * alpha + backB * (1 - alpha))
-                .round();
-
-            final ratio = _contrast(
-              _luminance(frontR, frontG, frontB),
-              _luminance(backR, backG, backB),
+            final measured = _measure(
+              color,
+              pixels[index],
+              pixels[index + 1],
+              pixels[index + 2],
             );
 
-            if (ratio < _minimumContrast) {
+            if (measured.ratio < _minimumContrast) {
               failures.add(
-                '  ${sample.key}: ${ratio.toStringAsFixed(2)}:1 '
-                '(texto #${_hex(frontR, frontG, frontB)} sobre '
-                '#${_hex(backR, backG, backB)})',
+                '  ${sample.key}: ${measured.ratio.toStringAsFixed(2)}:1 '
+                '(texto #${measured.front} sobre #${measured.back})',
               );
             }
           }
@@ -191,6 +205,93 @@ void main() {
                 'onWallpaperMuted, nunca onTile.',
           );
         });
+      });
+
+      // As telas de dentro não têm papel de parede: são fundo liso. Aqui não
+      // há pixel para amostrar — são duas cores, a do Scaffold e a do texto.
+      // Elas ainda são andaimes, e é de propósito que o piso já valha: as
+      // telas de conteúdo de verdade vêm por cima destas.
+      testWidgets('contraste sobre fundo liso — $combo', (tester) async {
+        final controller = PlatformController(skin.value);
+        final router = createRouter();
+        addTearDown(controller.dispose);
+        addTearDown(router.dispose);
+
+        await tester.pumpWidget(
+          PlatformScope(
+            controller: controller,
+            child: TokensScope(
+              tokens: tokens,
+              child: MaterialApp.router(
+                routerConfig: router,
+                debugShowCheckedModeBanner: false,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final failures = <String>[];
+
+        for (final route in const [
+          Routes.pen,
+          Routes.projects,
+          Routes.about,
+          Routes.experience,
+          Routes.resume,
+          Routes.settings,
+          Routes.phone,
+          Routes.email,
+          Routes.linkedin,
+          Routes.github,
+        ]) {
+          router.go(route);
+          await tester.pumpAndSettle();
+
+          final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+          final background = scaffold.backgroundColor;
+          expect(background, isNotNull, reason: '$route: Scaffold sem cor');
+
+          // Mede todo texto da tela, não uma lista de nomes: quando o
+          // conteúdo de verdade chegar, ele já nasce dentro do piso.
+          final texts = find.byType(Text).evaluate();
+          expect(texts, isNotEmpty, reason: '$route: nenhum texto');
+
+          for (final element in texts) {
+            final widget = element.widget as Text;
+            final style = DefaultTextStyle.of(
+              element,
+            ).style.merge(widget.style);
+            final color = style.color;
+            if (color == null) {
+              failures.add('  $route "${widget.data}": texto sem cor');
+              continue;
+            }
+
+            final measured = _measure(
+              color,
+              _byte(background!.r),
+              _byte(background.g),
+              _byte(background.b),
+            );
+            if (measured.ratio < _minimumContrast) {
+              failures.add(
+                '  $route "${widget.data}": '
+                '${measured.ratio.toStringAsFixed(2)}:1 '
+                '(texto #${measured.front} sobre #${measured.back})',
+              );
+            }
+          }
+        }
+
+        expect(
+          failures,
+          isEmpty,
+          reason:
+              'Texto ilegível sobre fundo liso em $combo — o mínimo é '
+              '${_minimumContrast.toStringAsFixed(1)}:1:\n'
+              '${failures.join('\n')}',
+        );
       });
     }
   }
