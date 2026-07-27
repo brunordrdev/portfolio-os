@@ -77,6 +77,17 @@ class AndroidSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 32;
 
+  // Launcher: calha larga, fileiras espaçadas, ladrilho um pouco menor e
+  // rótulo mais afastado. O Android respira mais que o iOS.
+  @override
+  GridMetrics get grid => const GridMetrics(
+    topInset: 28,
+    gutter: 26,
+    rowGap: 30,
+    tileSize: 56,
+    labelGap: 9,
+  );
+
   // Sem cápsula: no Android os ícones da doca ficam soltos sobre o papel de
   // parede. Nada de contêiner, nada de desfoque — só os ícones.
   @override

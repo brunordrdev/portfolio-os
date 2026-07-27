@@ -17,7 +17,7 @@ class AppIcon extends StatefulWidget {
     required this.glyph,
     required this.hue,
     required this.onTap,
-    this.size = 60,
+    this.size,
     this.badge,
     this.showLabel = true,
   });
@@ -36,8 +36,9 @@ class AppIcon extends StatefulWidget {
   /// dele. É com isso que a transição de contêiner tem de onde crescer.
   final void Function(AppOrigin origin) onTap;
 
-  /// Lado do ladrilho.
-  final double size;
+  /// Lado do ladrilho. Nulo pega o da grade da pele ativa — a doca, que tem
+  /// ladrilho menor, é quem passa um valor.
+  final double? size;
 
   /// Contagem do selo. Um ícone só do sistema recebe selo.
   final int? badge;
@@ -72,7 +73,7 @@ class _AppIconState extends State<AppIcon> {
   Widget build(BuildContext context) {
     final spec = context.platform;
     final tokens = context.tokens;
-    final size = widget.size;
+    final size = widget.size ?? spec.grid.tileSize;
     final badge = widget.badge;
     final showLabel = widget.showLabel;
     final radius = spec.iconRadius(size);
@@ -150,7 +151,7 @@ class _AppIconState extends State<AppIcon> {
       children: [
         spec.tappable(onTap: _handleTap, radius: radius, child: target),
         if (showLabel) ...[
-          SizedBox(height: size * 0.1),
+          SizedBox(height: spec.grid.labelGap),
           // O nome abre o app junto com o ladrilho: escrito embaixo do ícone
           // ele parece parte dele, e o que parece tocável funciona. Fica fora
           // do `tappable` porque a resposta visual da pele pertence ao

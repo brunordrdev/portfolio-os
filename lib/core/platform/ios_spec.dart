@@ -73,6 +73,17 @@ class IOSSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 54;
 
+  // Springboard: calha estreita, fileiras próximas, rótulo colado no
+  // ladrilho. A densidade é parte do que faz um iPhone parecer um iPhone.
+  @override
+  GridMetrics get grid => const GridMetrics(
+    topInset: 20,
+    gutter: 16,
+    rowGap: 18,
+    tileSize: 60,
+    labelGap: 5,
+  );
+
   // Vidro fosco: a doca do iOS é uma superfície própria, com o papel de
   // parede desfocado por baixo dela.
   @override

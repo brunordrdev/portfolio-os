@@ -3,6 +3,41 @@ import 'package:flutter/widgets.dart';
 /// Uma borda lateral da tela.
 enum ScreenEdge { left, right }
 
+/// As medidas da grade da tela inicial.
+///
+/// Vão juntas de propósito. Recuo, calha, vão entre fileiras, lado do
+/// ladrilho e distância até o rótulo formam um ritmo, e ritmo se ajusta
+/// inteiro: cinco membros soltos deixariam alguém apertar a calha sem
+/// apertar o vão, que é como uma grade fica desafinada.
+///
+/// É aqui que a troca de pele deixa de ser só desenho e vira respiração — a
+/// springboard do iOS é apertada, o launcher do Android é arejado.
+@immutable
+class GridMetrics {
+  const GridMetrics({
+    required this.topInset,
+    required this.gutter,
+    required this.rowGap,
+    required this.tileSize,
+    required this.labelGap,
+  });
+
+  /// Entre a barra de status e a primeira fileira.
+  final double topInset;
+
+  /// Da borda da tela até a primeira coluna.
+  final double gutter;
+
+  /// Entre uma fileira e a seguinte.
+  final double rowGap;
+
+  /// O lado do ladrilho.
+  final double tileSize;
+
+  /// Do pé do ladrilho até o rótulo.
+  final double labelGap;
+}
+
 /// Como a página que sai se transforma enquanto o dedo arrasta de volta.
 ///
 /// É descrição, não desenho: a costura diz o quanto encolher, arredondar e
@@ -110,6 +145,9 @@ abstract class PlatformSpec {
     required bool value,
     required ValueChanged<bool> onChanged,
   });
+
+  /// O ritmo da grade da tela inicial.
+  GridMetrics get grid;
 
   /// A doca: como os quatro canais de contato se apoiam no papel de parede.
   ///

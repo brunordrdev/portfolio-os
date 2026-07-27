@@ -16,6 +16,10 @@ import 'package:portfolio_os/shared/widgets/app_icon.dart';
 /// Os testes partem da pele que estiver ativa em vez de fixar uma: o que
 /// precisa ser verdade é que virar a chave leva para a outra e volta, não que
 /// a entrada seja esta ou aquela.
+/// O lado do ladrilho de cada pele, escrito à mão: o teste não pergunta a
+/// medida à implementação que ele está conferindo.
+double _tile(PlatformSpec spec) => spec.id == 'ios' ? 60 : 56;
+
 void main() {
   /// O raio do ladrilho denuncia a pele em uso sem precisar perguntar a ela:
   /// 0.225 do lado no iOS, metade no Android.
@@ -61,7 +65,7 @@ void main() {
         ? PlatformController.android
         : PlatformController.ios;
 
-    expect(tileRadius(tester), started.iconRadius(60).topLeft.x);
+    expect(tileRadius(tester), started.iconRadius(_tile(started)).topLeft.x);
 
     await tester.tap(find.text(other.label));
     await tester.pumpAndSettle();
@@ -73,7 +77,7 @@ void main() {
     );
     expect(
       tileRadius(tester),
-      other.iconRadius(60).topLeft.x,
+      other.iconRadius(_tile(other)).topLeft.x,
       reason: 'o ladrilho tem que ter sido redesenhado pela outra pele',
     );
 
@@ -81,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(controller.spec.id, started.id);
-    expect(tileRadius(tester), started.iconRadius(60).topLeft.x);
+    expect(tileRadius(tester), started.iconRadius(_tile(started)).topLeft.x);
   });
 
   testWidgets('a chave reflete a pele em uso, não um estado próprio', (
@@ -97,7 +101,7 @@ void main() {
     controller.use(other);
     await tester.pumpAndSettle();
 
-    expect(tileRadius(tester), other.iconRadius(60).topLeft.x);
+    expect(tileRadius(tester), other.iconRadius(_tile(other)).topLeft.x);
   });
 
   /// O raio de onde a transição de contêiner começa sai do ladrilho de

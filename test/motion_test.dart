@@ -112,6 +112,11 @@ void main() {
         // O raio de partida sai do ladrilho de verdade. Grade e doca têm
         // lados diferentes, e um número de referência chumbado sempre estaria
         // errado para pelo menos um dos dois.
+        // O lado do ladrilho vem da grade da pele, e as duas grades diferem.
+        // Escrito à mão: perguntar a medida à spec faria o teste concordar
+        // com qualquer valor que ela desse.
+        final tile = skin.key == 'iOS' ? 60.0 : 56.0;
+
         testWidgets('o movimento parte do tamanho do ladrilho da grade', (
           tester,
         ) async {
@@ -119,8 +124,8 @@ void main() {
           final route = openRoute(tester);
           final origin = (route.settings as AppOpenPage).origin!;
 
-          expect(origin.rect.width, 60);
-          expect(route.originRadius, spec.iconRadius(60).topLeft.x);
+          expect(origin.rect.width, tile);
+          expect(route.originRadius, spec.iconRadius(tile).topLeft.x);
         });
 
         testWidgets('o app tapa o que está atrás', (tester) async {

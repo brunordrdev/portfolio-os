@@ -100,9 +100,9 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             const StatusBar(),
-            const SizedBox(height: 26),
+            SizedBox(height: spec.grid.topInset),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: EdgeInsets.symmetric(horizontal: spec.grid.gutter),
               child: Column(
                 children: [
                   _GridRow(
@@ -110,7 +110,7 @@ class HomeScreen extends StatelessWidget {
                     names: _gridNames(apps).sublist(0, 3),
                     tokens: tokens,
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: spec.grid.rowGap),
                   _GridRow(
                     entries: _grid.sublist(3, 6),
                     names: _gridNames(apps).sublist(3, 6),
