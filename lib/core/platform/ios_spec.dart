@@ -52,6 +52,10 @@ class IOSSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 22;
 
+  // Só a borda esquerda: no iOS a direita não volta.
+  @override
+  Set<ScreenEdge> get backGestureEdges => const {ScreenEdge.left};
+
   // O toque do iOS não espalha tinta, então o raio não é usado aqui: ele só
   // existe na assinatura porque a outra plataforma precisa recortar a onda.
   @override

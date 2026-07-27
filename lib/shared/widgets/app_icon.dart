@@ -4,12 +4,13 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/platform/platform_scope.dart';
 import '../../core/theme/tokens.dart';
+import '../motion/app_open_page.dart';
 
 /// Ladrilho de um app da tela inicial.
 ///
 /// Pega a forma e a resposta de toque da pele ativa e as cores dos tokens.
 /// Não sabe — e não pode saber — em qual sistema está rodando.
-class AppIcon extends StatelessWidget {
+class AppIcon extends StatefulWidget {
   const AppIcon({
     super.key,
     required this.label,
@@ -31,7 +32,9 @@ class AppIcon extends StatelessWidget {
   /// Matiz deste app, vinda de `AppTokens.glyphs`.
   final Color hue;
 
-  final VoidCallback onTap;
+  /// Recebe de onde o app nasceu — o retângulo do ladrilho na tela e a cor
+  /// dele. É com isso que a transição de contêiner tem de onde crescer.
+  final void Function(AppOrigin origin) onTap;
 
   /// Lado do ladrilho.
   final double size;
@@ -43,16 +46,42 @@ class AppIcon extends StatelessWidget {
   final bool showLabel;
 
   @override
+  State<AppIcon> createState() => _AppIconState();
+}
+
+class _AppIconState extends State<AppIcon> {
+  /// A chave existe para medir o ladrilho na hora do toque. Precisa ser
+  /// estável entre reconstruções, e por isso o widget virou stateful.
+  final GlobalKey _tileKey = GlobalKey();
+
+  Color _tileColor(AppTokens tokens) =>
+      tokens.brightness == Brightness.dark ? tokens.surface : widget.hue;
+
+  void _handleTap() {
+    final box = _tileKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    widget.onTap(
+      AppOrigin(
+        rect: box.localToGlobal(Offset.zero) & box.size,
+        color: _tileColor(context.tokens),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final spec = context.platform;
     final tokens = context.tokens;
+    final size = widget.size;
+    final badge = widget.badge;
+    final showLabel = widget.showLabel;
     final radius = spec.iconRadius(size);
     final isDark = tokens.brightness == Brightness.dark;
 
     // No escuro o ladrilho é neutro e o glifo carrega a matiz. No claro a
     // relação inverte: o ladrilho recebe a matiz e o glifo fica branco.
-    final tileColor = isDark ? tokens.surface : hue;
-    final glyphColor = isDark ? hue : tokens.onTile;
+    final tileColor = _tileColor(tokens);
+    final glyphColor = isDark ? widget.hue : tokens.onTile;
 
     // O selo transborda o canto do ladrilho — é assim que um aviso se lê.
     // Mas nada pintado fora dos limites do widget recebe toque: por isso o
@@ -85,6 +114,7 @@ class AppIcon extends StatelessWidget {
             left: overhang,
             top: overhang,
             child: Container(
+              key: _tileKey,
               width: size,
               height: size,
               decoration: BoxDecoration(
@@ -95,7 +125,7 @@ class AppIcon extends StatelessWidget {
               child: Center(
                 child: IconTheme(
                   data: IconThemeData(color: glyphColor, size: size * 0.46),
-                  child: glyph,
+                  child: widget.glyph,
                 ),
               ),
             ),
@@ -105,7 +135,7 @@ class AppIcon extends StatelessWidget {
               left: badgeCenter.dx - badgeDiameter / 2,
               top: badgeCenter.dy - badgeDiameter / 2,
               child: _Badge(
-                count: badge!,
+                count: badge,
                 diameter: badgeDiameter,
                 fill: tokens.badge,
                 textColor: tokens.onTile,
@@ -118,7 +148,7 @@ class AppIcon extends StatelessWidget {
     final icon = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        spec.tappable(onTap: onTap, radius: radius, child: target),
+        spec.tappable(onTap: _handleTap, radius: radius, child: target),
         if (showLabel) ...[
           SizedBox(height: size * 0.1),
           // O nome abre o app junto com o ladrilho: escrito embaixo do ícone
@@ -127,9 +157,9 @@ class AppIcon extends StatelessWidget {
           // ladrilho — no iOS é ele que encolhe, não a legenda.
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: onTap,
+            onTap: _handleTap,
             child: Text(
-              label,
+              widget.label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -148,7 +178,7 @@ class AppIcon extends StatelessWidget {
     // Com o rótulo na tela o nome já é anunciado. Sem ele, um leitor de tela
     // encontraria um botão sem nome — então o nome entra pela semântica.
     if (showLabel) return icon;
-    return Semantics(label: label, button: true, child: icon);
+    return Semantics(label: widget.label, button: true, child: icon);
   }
 }
 

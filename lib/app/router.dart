@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/platform/platform_scope.dart';
+import '../core/theme/tokens.dart';
+import '../shared/motion/app_open_page.dart';
 import '../features/about/about_screen.dart';
 import '../features/contact/contact_screen.dart';
 import '../features/experience/experience_screen.dart';
@@ -30,6 +32,24 @@ abstract final class Routes {
   static const String github = '/github';
 }
 
+/// Monta a página de um app: o ladrilho cresce até virar a tela.
+///
+/// A rota lê a pele e a paleta daqui e as entrega prontas ao movimento —
+/// nenhuma tela de app participa disso, nem sabe que existe transição.
+Page<void> _appPage(BuildContext context, GoRouterState state, Widget child) {
+  return AppOpenPage<void>(
+    key: state.pageKey,
+    name: state.uri.path,
+    spec: context.platform,
+    background: context.tokens.background,
+    // `extra` só existe quando o app foi aberto por um ladrilho. Chegando
+    // pela URL não houve ladrilho, e aí não há de onde crescer.
+    origin: state.extra is AppOrigin ? state.extra! as AppOrigin : null,
+    onGoHome: () => context.go(Routes.home),
+    child: child,
+  );
+}
+
 /// Monta o roteador.
 GoRouter createRouter() {
   return GoRouter(
@@ -51,9 +71,7 @@ GoRouter createRouter() {
             reverseTransitionDuration: spec.closeDuration,
             child: const HomeScreen(),
             transitionsBuilder: (context, animation, secondary, child) {
-              final eased = animation.drive(
-                CurveTween(curve: spec.openCurve),
-              );
+              final eased = animation.drive(CurveTween(curve: spec.openCurve));
               return FadeTransition(
                 opacity: eased,
                 child: SlideTransition(
@@ -72,43 +90,53 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: Routes.pen,
-        builder: (context, state) => const PenScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const PenScreen()),
       ),
       GoRoute(
         path: Routes.projects,
-        builder: (context, state) => const ProjectsScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ProjectsScreen()),
       ),
       GoRoute(
         path: Routes.about,
-        builder: (context, state) => const AboutScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const AboutScreen()),
       ),
       GoRoute(
         path: Routes.experience,
-        builder: (context, state) => const ExperienceScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ExperienceScreen()),
       ),
       GoRoute(
         path: Routes.resume,
-        builder: (context, state) => const ResumeScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ResumeScreen()),
       ),
       GoRoute(
         path: Routes.settings,
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const SettingsScreen()),
       ),
       GoRoute(
         path: Routes.phone,
-        builder: (context, state) => const ContactScreen(channel: 'Telefone'),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ContactScreen(channel: 'Telefone')),
       ),
       GoRoute(
         path: Routes.email,
-        builder: (context, state) => const ContactScreen(channel: 'Email'),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ContactScreen(channel: 'Email')),
       ),
       GoRoute(
         path: Routes.linkedin,
-        builder: (context, state) => const ContactScreen(channel: 'LinkedIn'),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ContactScreen(channel: 'LinkedIn')),
       ),
       GoRoute(
         path: Routes.github,
-        builder: (context, state) => const ContactScreen(channel: 'GitHub'),
+        pageBuilder: (context, state) =>
+            _appPage(context, state, const ContactScreen(channel: 'GitHub')),
       ),
     ],
   );

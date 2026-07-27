@@ -52,6 +52,11 @@ class AndroidSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 26;
 
+  // Qualquer borda lateral volta.
+  @override
+  Set<ScreenEdge> get backGestureEdges =>
+      const {ScreenEdge.left, ScreenEdge.right};
+
   @override
   Widget tappable({
     required Widget child,

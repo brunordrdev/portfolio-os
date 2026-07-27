@@ -1,5 +1,8 @@
 import 'package:flutter/widgets.dart';
 
+/// Uma borda lateral da tela.
+enum ScreenEdge { left, right }
+
 /// Contrato único do que muda entre um sistema e outro.
 ///
 /// Nenhuma tela deste projeto pergunta em qual plataforma está rodando: ela
@@ -59,6 +62,11 @@ abstract class PlatformSpec {
 
   /// Altura da barra de status no topo.
   double get systemChromeHeight;
+
+  /// De quais bordas laterais o gesto de voltar pode nascer. É a única coisa
+  /// que muda entre as plataformas nesse gesto: o resto — acompanhar o dedo,
+  /// desistir antes da metade, assentar com a curva de fechar — é igual.
+  Set<ScreenEdge> get backGestureEdges;
 
   // --- Componentes --------------------------------------------------------
 

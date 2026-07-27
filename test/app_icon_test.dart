@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
+import 'package:portfolio_os/shared/motion/app_open_page.dart';
 import 'package:portfolio_os/shared/widgets/app_icon.dart';
 
 /// Este arquivo é a rede de proteção da costura.
@@ -16,7 +17,7 @@ import 'package:portfolio_os/shared/widgets/app_icon.dart';
 Widget _harness(
   PlatformController controller,
   AppTokens tokens,
-  VoidCallback onTap,
+  void Function(AppOrigin) onTap,
 ) {
   return PlatformScope(
     controller: controller,
@@ -59,7 +60,7 @@ void main() {
           final controller = PlatformController(skin.value);
           addTearDown(controller.dispose);
           await tester.pumpWidget(
-            _harness(controller, palette.value, () => taps++),
+            _harness(controller, palette.value, (_) => taps++),
           );
           await tester.pumpAndSettle();
         }
@@ -128,7 +129,7 @@ void main() {
                   label: 'Sobre',
                   glyph: const Icon(Icons.circle),
                   hue: AppTokens.dark.glyphs.first,
-                  onTap: () => taps++,
+                  onTap: (_) => taps++,
                 ),
               ),
             ),
