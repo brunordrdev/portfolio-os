@@ -1,6 +1,7 @@
 @Tags(['golden'])
 library;
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
@@ -28,6 +29,11 @@ import 'package:portfolio_os/features/lock/lock_screen.dart';
 ///
 ///     flutter test --update-goldens test/golden_test.dart
 void main() {
+  /// Um instante fixo. A tela de bloqueio mostra a data por extenso, e
+  /// "domingo, 26 de julho" não tem a mesma largura de "segunda-feira, 27 de
+  /// julho": sem congelar o relógio, o retrato reprova na virada do dia.
+  final frozen = DateTime(2026, 7, 26, 22, 47);
+
   Future<void> boot(WidgetTester tester, AppTokens tokens) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -56,25 +62,29 @@ void main() {
   }
 
   testWidgets('retrato do bloqueio', (tester) async {
-    await boot(tester, AppTokens.dark);
+    await withClock(Clock.fixed(frozen), () async {
+      await boot(tester, AppTokens.dark);
 
-    expect(find.byType(LockScreen), findsOneWidget);
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('goldens/bloqueio.png'),
-    );
+      expect(find.byType(LockScreen), findsOneWidget);
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/bloqueio.png'),
+      );
+    });
   });
 
   testWidgets('retrato da tela inicial', (tester) async {
-    await boot(tester, AppTokens.dark);
+    await withClock(Clock.fixed(frozen), () async {
+      await boot(tester, AppTokens.dark);
 
-    await tester.tapAt(tester.getCenter(find.byType(LockScreen)));
-    await tester.pumpAndSettle();
+      await tester.tapAt(tester.getCenter(find.byType(LockScreen)));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(HomeScreen), findsOneWidget);
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('goldens/inicio.png'),
-    );
+      expect(find.byType(HomeScreen), findsOneWidget);
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/inicio.png'),
+      );
+    });
   });
 }

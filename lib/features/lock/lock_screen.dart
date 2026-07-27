@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -93,7 +94,7 @@ class _LockScreenState extends State<LockScreen> {
   Widget build(BuildContext context) {
     final spec = context.platform;
     final tokens = context.tokens;
-    final now = DateTime.now();
+    final now = clock.now();
 
     // O Scaffold existe pelo Material que ele traz: sem um Material acima,
     // todo Text herda o estilo de erro do framework — vermelho, monoespaçado

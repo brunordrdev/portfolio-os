@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart';
 
 /// Hora do relógio, com dois dígitos em cada lado.
@@ -8,6 +9,11 @@ String clockText(DateTime time) =>
     '${time.minute.toString().padLeft(2, '0')}';
 
 /// Reconstrói o filho na virada de cada minuto, com a hora real.
+///
+/// A hora vem de `clock.now()` e não de `DateTime.now()`. Em produção dá na
+/// mesma — é o relógio do sistema. Em teste, deixa congelar o tempo: sem
+/// isso um retrato de tela guarda a hora em que foi tirado e reprova sozinho
+/// no minuto seguinte.
 ///
 /// O timer acerta o passo com o relógio em vez de disparar a cada minuto
 /// corrido: assim o número muda quando o minuto muda, e não meio minuto
@@ -29,12 +35,12 @@ class _MinuteClockState extends State<MinuteClock> {
   @override
   void initState() {
     super.initState();
-    _now = DateTime.now();
+    _now = clock.now();
     _scheduleNextTick();
   }
 
   void _scheduleNextTick() {
-    final now = DateTime.now();
+    final now = clock.now();
     final nextMinute = DateTime(
       now.year,
       now.month,
@@ -45,7 +51,7 @@ class _MinuteClockState extends State<MinuteClock> {
 
     _timer = Timer(nextMinute.difference(now), () {
       if (!mounted) return;
-      setState(() => _now = DateTime.now());
+      setState(() => _now = clock.now());
       _scheduleNextTick();
     });
   }
