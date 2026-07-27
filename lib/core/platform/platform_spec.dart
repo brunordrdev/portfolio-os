@@ -3,6 +3,14 @@ import 'package:flutter/widgets.dart';
 /// Uma borda lateral da tela.
 enum ScreenEdge { left, right }
 
+/// Identidade do selo na árvore.
+///
+/// O selo muda de forma entre as peles — cápsula com número de um lado,
+/// ponto do outro — e sem uma chave só o teste teria de saber qual pele está
+/// olhando para achá-lo. A chave é o que permite perguntar "o selo responde
+/// ao toque?" sem perguntar antes "que selo é este?".
+const Key appBadgeKey = ValueKey('appBadge');
+
 /// As medidas da grade da tela inicial.
 ///
 /// Vão juntas de propósito. Recuo, calha, vão entre fileiras, lado do
@@ -150,6 +158,17 @@ abstract class PlatformSpec {
     required bool value,
     required ValueChanged<bool> onChanged,
   });
+
+  /// Como esta plataforma marca um app que tem novidade.
+  ///
+  /// Não é o tamanho do selo: é o selo inteiro. O iOS conta quantas — uma
+  /// cápsula com número —, e o Android só avisa que há — um ponto, sem
+  /// número. Delegar a medida teria deixado a forma chumbada, e a forma é
+  /// justamente o que muda.
+  ///
+  /// `tileSize` entra porque o selo se dimensiona em relação ao ladrilho que
+  /// ele marca, e o ladrilho da doca não é o da grade.
+  Widget appBadge({required int count, required double tileSize});
 
   /// O ritmo da grade da tela inicial.
   GridMetrics get grid;

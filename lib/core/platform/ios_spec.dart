@@ -77,6 +77,37 @@ class IOSSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 54;
 
+  // Cápsula com o número: o iOS diz quantas novidades há.
+  @override
+  Widget appBadge({required int count, required double tileSize}) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        final diameter = tileSize * 0.34;
+        return Container(
+          key: appBadgeKey,
+          constraints: BoxConstraints(minWidth: diameter, minHeight: diameter),
+          padding: EdgeInsets.symmetric(horizontal: diameter * 0.2),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: tokens.badge,
+            borderRadius: BorderRadius.circular(diameter),
+          ),
+          child: Text(
+            '$count',
+            style: TextStyle(
+              color: tokens.onTile,
+              fontSize: diameter * 0.6,
+              fontWeight: FontWeight.w600,
+              height: 1,
+              fontFamilyFallback: fontFallback,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Springboard: calha estreita, fileiras próximas, rótulo colado no
   // ladrilho. A densidade é parte do que faz um iPhone parecer um iPhone.
   @override

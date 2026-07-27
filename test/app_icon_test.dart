@@ -69,11 +69,22 @@ void main() {
           await tester.pumpAndSettle();
         }
 
+        // Cada plataforma marca novidade do seu jeito: o iOS conta quantas,
+        // o Android só avisa que há. Escrito à mão por pele.
+        final countsBadges = skin.key == 'iOS';
+
         testWidgets('desenha rótulo e selo', (tester) async {
           await mount(tester);
 
           expect(find.text('Projetos'), findsOneWidget);
-          expect(find.text('1'), findsOneWidget);
+          expect(find.byKey(appBadgeKey), findsOneWidget);
+          expect(
+            find.text('1'),
+            countsBadges ? findsOneWidget : findsNothing,
+            reason: countsBadges
+                ? 'o iOS mostra o número'
+                : 'o Android é um ponto, sem número',
+          );
         });
 
         testWidgets('o ladrilho responde ao toque', (tester) async {
@@ -90,7 +101,7 @@ void main() {
         testWidgets('o selo responde ao toque', (tester) async {
           await mount(tester);
 
-          await tester.tap(find.text('1'));
+          await tester.tap(find.byKey(appBadgeKey));
           await tester.pumpAndSettle();
 
           expect(taps, 1);
@@ -101,13 +112,13 @@ void main() {
         testWidgets('a borda externa do selo também responde', (tester) async {
           await mount(tester);
 
-          // 60 é o lado padrão do ladrilho; o selo tem 34% disso.
-          const badgeRadius = 60 * 0.34 / 2;
-          const reach = badgeRadius * 0.7 / math.sqrt2;
+          // Medido no selo desenhado, e não calculado a partir do ladrilho:
+          // o tamanho é da pele agora, e as duas escolhem tamanhos
+          // diferentes.
+          final badge = tester.getRect(find.byKey(appBadgeKey));
+          final reach = badge.shortestSide * 0.35 / math.sqrt2;
 
-          await tester.tapAt(
-            tester.getCenter(find.text('1')) + const Offset(reach, -reach),
-          );
+          await tester.tapAt(badge.center + Offset(reach, -reach));
           await tester.pumpAndSettle();
 
           expect(taps, 1);

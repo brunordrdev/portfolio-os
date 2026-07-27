@@ -81,6 +81,26 @@ class AndroidSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 32;
 
+  // Ponto, sem número: o launcher do Android avisa que há novidade e não
+  // diz quantas. A contagem fica dentro do app, que é onde ela cabe.
+  @override
+  Widget appBadge({required int count, required double tileSize}) {
+    return Builder(
+      builder: (context) {
+        final diameter = tileSize * 0.18;
+        return Container(
+          key: appBadgeKey,
+          width: diameter,
+          height: diameter,
+          decoration: BoxDecoration(
+            color: context.tokens.badge,
+            shape: BoxShape.circle,
+          ),
+        );
+      },
+    );
+  }
+
   // Launcher: calha larga, fileiras espaçadas, ladrilho um pouco menor e
   // rótulo mais afastado. O Android respira mais que o iOS.
   @override

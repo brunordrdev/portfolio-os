@@ -99,7 +99,6 @@ class _AppIconState extends State<AppIcon> {
     // pontos deixam de ser o mesmo: o canto do ícone está sobre a curva, a
     // 45°. É de lá que o selo transborda, e é lá que o toque alcança.
     final corner = radius.topRight.x;
-    final badgeDiameter = size * 0.34;
     final cornerInset = corner * (1 - 1 / math.sqrt2);
     final badgeCenter = Offset(
       boxWidth - overhang - cornerInset,
@@ -133,13 +132,14 @@ class _AppIconState extends State<AppIcon> {
           ),
           if (badge != null)
             Positioned(
-              left: badgeCenter.dx - badgeDiameter / 2,
-              top: badgeCenter.dy - badgeDiameter / 2,
-              child: _Badge(
-                count: badge,
-                diameter: badgeDiameter,
-                fill: tokens.badge,
-                textColor: tokens.onTile,
+              left: badgeCenter.dx,
+              top: badgeCenter.dy,
+              // Meia peça para cima e para a esquerda: assim o selo fica
+              // centrado no canto sem que este widget saiba o tamanho dele,
+              // que é da pele. O toque acompanha a translação.
+              child: FractionalTranslation(
+                translation: const Offset(-0.5, -0.5),
+                child: spec.appBadge(count: badge, tileSize: size),
               ),
             ),
         ],
@@ -180,42 +180,5 @@ class _AppIconState extends State<AppIcon> {
     // encontraria um botão sem nome — então o nome entra pela semântica.
     if (showLabel) return icon;
     return Semantics(label: widget.label, button: true, child: icon);
-  }
-}
-
-/// Selo de contagem. Vermelho só vale alguma coisa porque é escasso.
-class _Badge extends StatelessWidget {
-  const _Badge({
-    required this.count,
-    required this.diameter,
-    required this.fill,
-    required this.textColor,
-  });
-
-  final int count;
-  final double diameter;
-  final Color fill;
-  final Color textColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(minWidth: diameter, minHeight: diameter),
-      padding: EdgeInsets.symmetric(horizontal: diameter * 0.2),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: fill,
-        borderRadius: BorderRadius.circular(diameter),
-      ),
-      child: Text(
-        '$count',
-        style: TextStyle(
-          color: textColor,
-          fontSize: diameter * 0.6,
-          fontWeight: FontWeight.w600,
-          height: 1,
-        ),
-      ),
-    );
   }
 }
