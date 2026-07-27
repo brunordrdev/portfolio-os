@@ -85,41 +85,52 @@ class _AppScreenState extends State<AppScreen> {
 
     return Scaffold(
       backgroundColor: tokens.background,
-      body: SafeArea(
-        // O topo é dos cabeçalhos, que já respeitam a barra de status por
-        // conta própria; a base é da faixa de gesto, tratada no fim da lista.
-        top: false,
-        bottom: false,
-        child: CustomScrollView(
-          controller: _scroll,
-          slivers: [
-            spec.screenHeader(
-              title: widget.title,
-              onBack: () => _close(context),
-              background: tokens.background,
-              foreground: tokens.onWallpaper,
-            ),
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                widget.sidePadding,
-                8,
-                widget.sidePadding,
-                _bottomGesture + MediaQuery.paddingOf(context).bottom,
+      // O recorte da câmera come o topo da tela, e cabeçalho de app não pode
+      // passar por baixo dele. Entregue como recuo do MediaQuery, os dois
+      // cabeçalhos o respeitam sozinhos — é assim que eles esperam receber a
+      // notícia de que há hardware ali em cima.
+      body: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          padding: MediaQuery.paddingOf(
+            context,
+          ).copyWith(top: spec.systemChromeHeight),
+        ),
+        child: SafeArea(
+          // O topo é dos cabeçalhos, que agora recebem o recuo acima; a base
+          // é da faixa de gesto, tratada no fim da lista.
+          top: false,
+          bottom: false,
+          child: CustomScrollView(
+            controller: _scroll,
+            slivers: [
+              spec.screenHeader(
+                title: widget.title,
+                onBack: () => _close(context),
+                background: tokens.background,
+                foreground: tokens.onWallpaper,
               ),
-              sliver: SliverList.list(
-                children: [
-                  for (final block in widget.blocks)
-                    _Block(
-                      block: block,
-                      tokens: tokens,
-                      spec: spec,
-                      scale: scale,
-                    ),
-                  ...widget.children,
-                ],
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  widget.sidePadding,
+                  8,
+                  widget.sidePadding,
+                  _bottomGesture + MediaQuery.paddingOf(context).bottom,
+                ),
+                sliver: SliverList.list(
+                  children: [
+                    for (final block in widget.blocks)
+                      _Block(
+                        block: block,
+                        tokens: tokens,
+                        spec: spec,
+                        scale: scale,
+                      ),
+                    ...widget.children,
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
