@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
@@ -95,98 +95,105 @@ class _LockScreenState extends State<LockScreen> {
     final tokens = context.tokens;
     final now = DateTime.now();
 
-    return Wallpaper(
-      child: Focus(
-        autofocus: true,
-        onKeyEvent: _onKey,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _open,
-          onVerticalDragStart: (_) => _dragged = 0,
-          onVerticalDragUpdate: (details) =>
-              _dragged += details.primaryDelta ?? 0,
-          onVerticalDragEnd: (details) {
-            final velocity = details.primaryVelocity ?? 0;
-            if (velocity < _flingVelocity || _dragged < -_dragDistance) {
-              _open();
-            }
-          },
-          child: Column(
-            children: [
-              const StatusBar(),
-              const SizedBox(height: 30),
-              MinuteClock(
-                builder: (context, time) => Text(
-                  clockText(time),
-                  style: TextStyle(
-                    color: tokens.textPrimary,
-                    fontSize: 52,
-                    fontWeight: FontWeight.w300,
-                    fontFamilyFallback: spec.fontFallback,
-                    height: 1.05,
+    // O Scaffold existe pelo Material que ele traz: sem um Material acima,
+    // todo Text herda o estilo de erro do framework — vermelho, monoespaçado
+    // e sublinhado em amarelo duplo. O fundo é transparente porque quem
+    // pinta aqui é o papel de parede.
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Wallpaper(
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: _onKey,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _open,
+            onVerticalDragStart: (_) => _dragged = 0,
+            onVerticalDragUpdate: (details) =>
+                _dragged += details.primaryDelta ?? 0,
+            onVerticalDragEnd: (details) {
+              final velocity = details.primaryVelocity ?? 0;
+              if (velocity < _flingVelocity || _dragged < -_dragDistance) {
+                _open();
+              }
+            },
+            child: Column(
+              children: [
+                const StatusBar(),
+                const SizedBox(height: 30),
+                MinuteClock(
+                  builder: (context, time) => Text(
+                    clockText(time),
+                    style: TextStyle(
+                      color: tokens.textPrimary,
+                      fontSize: 52,
+                      fontWeight: FontWeight.w300,
+                      fontFamilyFallback: spec.fontFallback,
+                      height: 1.05,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '${_dateLine(now)} · Aracaju',
-                style: TextStyle(
-                  color: tokens.textPrimary.withValues(alpha: 0.62),
-                  fontSize: 13,
-                  fontFamilyFallback: spec.fontFallback,
+                const SizedBox(height: 6),
+                Text(
+                  '${_dateLine(now)} · Aracaju',
+                  style: TextStyle(
+                    color: tokens.textPrimary.withValues(alpha: 0.62),
+                    fontSize: 13,
+                    fontFamilyFallback: spec.fontFallback,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                'olá',
-                style: TextStyle(
-                  color: tokens.accent,
-                  fontSize: 44,
-                  fontStyle: FontStyle.italic,
-                  fontFamilyFallback: _serif,
-                  height: 1.1,
+                const Spacer(),
+                Text(
+                  'olá',
+                  style: TextStyle(
+                    color: tokens.accent,
+                    fontSize: 44,
+                    fontStyle: FontStyle.italic,
+                    fontFamilyFallback: _serif,
+                    height: 1.1,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'me chamo Bruno',
-                style: TextStyle(
-                  color: tokens.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  fontFamilyFallback: spec.fontFallback,
+                const SizedBox(height: 12),
+                Text(
+                  'me chamo Bruno',
+                  style: TextStyle(
+                    color: tokens.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontFamilyFallback: spec.fontFallback,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'desenvolvedor mobile',
-                style: TextStyle(
-                  color: tokens.textPrimary.withValues(alpha: 0.58),
-                  fontSize: 12,
-                  fontFamilyFallback: spec.fontFallback,
+                const SizedBox(height: 4),
+                Text(
+                  'desenvolvedor mobile',
+                  style: TextStyle(
+                    color: tokens.textPrimary.withValues(alpha: 0.58),
+                    fontSize: 12,
+                    fontFamilyFallback: spec.fontFallback,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              IconTheme(
-                data: IconThemeData(
-                  color: tokens.textPrimary.withValues(alpha: 0.7),
-                  size: 20,
+                const Spacer(),
+                IconTheme(
+                  data: IconThemeData(
+                    color: tokens.textPrimary.withValues(alpha: 0.7),
+                    size: 20,
+                  ),
+                  child: AppGlyph(AppGlyphs.arrowUp),
                 ),
-                child: AppGlyph(AppGlyphs.arrowUp),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'arraste para cima',
-                style: TextStyle(
-                  color: tokens.textPrimary.withValues(alpha: 0.7),
-                  fontSize: 12,
-                  fontFamilyFallback: spec.fontFallback,
+                const SizedBox(height: 6),
+                Text(
+                  'arraste para cima',
+                  style: TextStyle(
+                    color: tokens.textPrimary.withValues(alpha: 0.7),
+                    fontSize: 12,
+                    fontFamilyFallback: spec.fontFallback,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              const HomeIndicator(),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 18),
+                const HomeIndicator(),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

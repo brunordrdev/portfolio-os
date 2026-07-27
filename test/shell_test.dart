@@ -15,6 +15,55 @@ import 'package:portfolio_os/shared/widgets/app_icon.dart';
 /// As quatro combinações rodam sempre. É o que garante que lapidar a pele
 /// Android depois não quebre a casca em silêncio.
 void main() {
+  // Sem um Material acima, todo Text herda o estilo de erro do framework:
+  // vermelho, monoespaçado e sublinhado em amarelo duplo. Compila, passa em
+  // todo teste de estrutura e aparece na cara do visitante.
+  group('nenhuma tela herda o estilo de erro do Material', () {
+    for (final route in const [
+      Routes.lock,
+      Routes.home,
+      Routes.pen,
+      Routes.projects,
+      Routes.about,
+      Routes.experience,
+      Routes.resume,
+      Routes.settings,
+      Routes.phone,
+      Routes.email,
+      Routes.linkedin,
+      Routes.github,
+    ]) {
+      testWidgets(route, (tester) async {
+        final controller = PlatformController(PlatformController.ios);
+        final router = createRouter();
+        addTearDown(controller.dispose);
+        addTearDown(router.dispose);
+
+        await tester.pumpWidget(
+          PlatformScope(
+            controller: controller,
+            child: TokensScope(
+              tokens: AppTokens.dark,
+              child: MaterialApp.router(routerConfig: router),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        if (route != Routes.lock) {
+          router.go(route);
+          await tester.pumpAndSettle();
+        }
+
+        final texts = find.byType(Text);
+        expect(texts, findsWidgets, reason: 'a tela precisa ter algum texto');
+
+        final style = DefaultTextStyle.of(tester.element(texts.first)).style;
+        expect(style.decoration ?? TextDecoration.none, TextDecoration.none);
+      });
+    }
+  });
+
   const skins = <String, PlatformSpec>{
     'iOS': PlatformController.ios,
     'Android': PlatformController.android,

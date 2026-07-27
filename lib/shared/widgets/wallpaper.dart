@@ -35,12 +35,13 @@ class Wallpaper extends StatelessWidget {
       ),
       child: DecoratedBox(
         // Brilho quente, embaixo à esquerda: é o acento vazando no fundo.
+        // Precisa dar para ver os dois brilhos sem procurar.
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: _at(0.22, 0.88),
-            radius: 0.7,
+            radius: 1.05,
             colors: [
-              tokens.accent.withValues(alpha: 0.16),
+              tokens.accent.withValues(alpha: 0.28),
               tokens.accent.withValues(alpha: 0),
             ],
           ),
@@ -50,9 +51,9 @@ class Wallpaper extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: RadialGradient(
               center: _at(0.82, 0.14),
-              radius: 0.6,
+              radius: 0.9,
               colors: [
-                tokens.coolGlow.withValues(alpha: 0.14),
+                tokens.coolGlow.withValues(alpha: 0.22),
                 tokens.coolGlow.withValues(alpha: 0),
               ],
             ),

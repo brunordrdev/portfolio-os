@@ -1,6 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
@@ -63,7 +63,7 @@ final List<_Entry> _grid = [
   ),
   _Entry(
     label: 'Ajustes',
-    glyph: AppGlyphs.gear,
+    glyph: AppGlyphs.sliders,
     hue: 5,
     route: Routes.settings,
   ),
@@ -71,7 +71,12 @@ final List<_Entry> _grid = [
 
 /// A doca é contato. Quatro canais, sem rótulo.
 final List<_Entry> _dock = [
-  _Entry(label: 'Telefone', glyph: AppGlyphs.phone, hue: 6, route: Routes.phone),
+  _Entry(
+    label: 'Telefone',
+    glyph: AppGlyphs.phone,
+    hue: 6,
+    route: Routes.phone,
+  ),
   _Entry(label: 'Email', glyph: AppGlyphs.mail, hue: 7, route: Routes.email),
   _Entry(
     label: 'LinkedIn',
@@ -97,56 +102,63 @@ class HomeScreen extends StatelessWidget {
     final spec = context.platform;
     final tokens = context.tokens;
 
-    return Wallpaper(
-      child: Column(
-        children: [
-          const StatusBar(),
-          const SizedBox(height: 26),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: Column(
-              children: [
-                _GridRow(entries: _grid.sublist(0, 3), tokens: tokens),
-                const SizedBox(height: 24),
-                _GridRow(entries: _grid.sublist(3, 6), tokens: tokens),
-              ],
+    // O Scaffold existe pelo Material que ele traz: sem um Material acima,
+    // todo Text herda o estilo de erro do framework — vermelho, monoespaçado
+    // e sublinhado em amarelo duplo. O fundo é transparente porque quem pinta
+    // aqui é o papel de parede.
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Wallpaper(
+        child: Column(
+          children: [
+            const StatusBar(),
+            const SizedBox(height: 26),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                children: [
+                  _GridRow(entries: _grid.sublist(0, 3), tokens: tokens),
+                  const SizedBox(height: 24),
+                  _GridRow(entries: _grid.sublist(3, 6), tokens: tokens),
+                ],
+              ),
             ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(spec.surfaceRadius),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  color: tokens.dockFill,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 6,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      for (final entry in _dock)
-                        AppIcon(
-                          label: entry.label,
-                          glyph: AppGlyph(entry.glyph),
-                          hue: tokens.glyphs[entry.hue],
-                          size: 52,
-                          showLabel: false,
-                          onTap: () => context.go(entry.route),
-                        ),
-                    ],
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(spec.surfaceRadius),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: Container(
+                    color: tokens.dockFill,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 6,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        for (final entry in _dock)
+                          AppIcon(
+                            label: entry.label,
+                            glyph: AppGlyph(entry.glyph),
+                            hue: tokens.glyphs[entry.hue],
+                            size: 52,
+                            showLabel: false,
+                            onTap: () => context.go(entry.route),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          const HomeIndicator(),
-          const SizedBox(height: 10),
-        ],
+            const SizedBox(height: 14),
+            const HomeIndicator(),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }

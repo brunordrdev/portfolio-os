@@ -66,7 +66,9 @@ class AppTokens {
     background: Color(0xFF16130F),
     backgroundDeep: Color(0xFF0E0C0A),
     surface: Color(0xFF1F1C17),
-    surfaceBorder: Color(0xFF322C24),
+    // Claro o bastante para o ladrilho ter base contra o papel de parede,
+    // escuro o bastante para não virar contorno desenhado.
+    surfaceBorder: Color(0xFF4A4238),
     dockFill: Color(0x9E28241E),
     textPrimary: Color(0xFFECE5D9),
     textSecondary: Color(0xFF8D8478),

@@ -51,12 +51,13 @@ abstract final class AppGlyphs {
   );
 
   /// 5 · Ajustes
-  static final String gear = _drawn(
-    '<circle cx="12" cy="12" r="3.2"/>'
-    '<path d="M12 2.5v2.6"/><path d="M12 18.9v2.6"/>'
-    '<path d="M21.5 12h-2.6"/><path d="M5.1 12H2.5"/>'
-    '<path d="M18.7 5.3l-1.8 1.8"/><path d="M7.1 16.9l-1.8 1.8"/>'
-    '<path d="M18.7 18.7l-1.8-1.8"/><path d="M7.1 7.1L5.3 5.3"/>',
+  ///
+  /// Três cursores, cada um parado num ponto diferente. A engrenagem que
+  /// estava aqui antes lia como sol: um círculo com raios em volta.
+  static final String sliders = _drawn(
+    '<path d="M3 6.5h18"/><circle cx="16" cy="6.5" r="2.1"/>'
+    '<path d="M3 12h18"/><circle cx="9" cy="12" r="2.1"/>'
+    '<path d="M3 17.5h18"/><circle cx="13" cy="17.5" r="2.1"/>',
   );
 
   /// 6 · Telefone
