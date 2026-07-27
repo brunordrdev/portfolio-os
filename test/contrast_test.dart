@@ -30,6 +30,25 @@ import 'package:portfolio_os/shared/widgets/wallpaper.dart';
 /// de medir, senão o número mente a favor.
 const double _minimumContrast = 4.5;
 
+/// O que esta medição NÃO vê.
+///
+/// No grupo do papel de parede a cor de trás é lida do pixel de verdade, e
+/// portanto é exata. No grupo de fundo liso ela é lida do `Scaffold`, e uma
+/// tela pode desenhar um cartão por cima dele: no cartão embutido do iOS o
+/// fundo real é `surface`, não `background`.
+///
+/// A direção do erro depende do tema. No claro `surface` é branco, mais claro
+/// que a página, então a medição é pessimista — reprova antes da hora, o que
+/// é seguro. No escuro `surface` é mais claro que o fundo, então ela é
+/// otimista: o contraste real dentro de um cartão é um pouco menor que o
+/// medido.
+///
+/// Daí este piso. Enquanto a pior medição no escuro estiver bem acima de
+/// 4,5, a diferença entre medido e real não alcança o mínimo e a
+/// aproximação se paga. Se cair abaixo, a folga acabou e a medição precisa
+/// passar a ler o fundo real de cada texto em vez do fundo da tela.
+const double _darkApproximationFloor = 5;
+
 double _linear(int channel) {
   final s = channel / 255;
   return s <= 0.03928
@@ -249,6 +268,7 @@ void main() {
         await tester.pumpAndSettle();
 
         final failures = <String>[];
+        var worst = double.infinity;
 
         for (final route in const [
           Routes.pen,
@@ -287,6 +307,7 @@ void main() {
               _byte(background.g),
               _byte(background.b),
             );
+            worst = math.min(worst, measured.ratio);
             if (measured.ratio < _minimumContrast) {
               failures.add(
                 '  $route "${widget.data}": '
@@ -305,6 +326,24 @@ void main() {
               '${_minimumContrast.toStringAsFixed(1)}:1:\n'
               '${failures.join('\n')}',
         );
+
+        // O gatilho da aproximação — ver o comentário de
+        // `_darkApproximationFloor`. No escuro o fundo real dentro de um
+        // cartão é mais claro que o da tela, então a medição é otimista, e a
+        // folga sobre o piso é o que compra o direito de não ler o fundo
+        // real de cada texto.
+        if (tokens.brightness == Brightness.dark) {
+          expect(
+            worst,
+            greaterThanOrEqualTo(_darkApproximationFloor),
+            reason:
+                'A pior medição no escuro caiu para '
+                '${worst.toStringAsFixed(2)}:1, abaixo de '
+                '${_darkApproximationFloor.toStringAsFixed(1)}:1. A folga que '
+                'justificava medir contra o fundo do Scaffold acabou: a '
+                'medição precisa passar a ler o fundo real de cada texto.',
+          );
+        }
       });
     }
   }

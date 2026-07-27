@@ -108,7 +108,10 @@ jobs:
       # Os retratos rodam no outro job, na plataforma deles.
       - run: flutter test --exclude-tags golden
 
-      - run: flutter build web --release
+      # --wasm compila os dois alvos: dart2wasm/skwasm para quem tem WasmGC e
+      # dart2js/canvaskit para o resto. O carregador escolhe, e o navegador
+      # moderno baixa 1,8 MB em vez de 2,2 MB.
+      - run: flutter build web --release --wasm
 
       # ── Publicação ────────────────────────────────────────────────────
       # Só na main, e só em push: um pull request de fora não publica.

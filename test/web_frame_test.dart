@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -48,11 +49,11 @@ void main() {
   });
 
   group('as cores da moldura são as do sistema', () {
-    // Fora do bloco escuro estão os valores claros; dentro dele, os escuros.
-    final darkBlock = html.substring(
-      html.indexOf('prefers-color-scheme: dark'),
-    );
-    final lightBlock = html.substring(0, html.indexOf('prefers-color-scheme'));
+    // Ancorado no @media do CSS: as metas theme-color também falam de
+    // prefers-color-scheme, e cortar por ali pegaria o pedaço errado.
+    const darkRule = '@media (prefers-color-scheme: dark)';
+    final darkBlock = html.substring(html.indexOf(darkRule));
+    final lightBlock = html.substring(0, html.indexOf(darkRule));
 
     String value(String block, String name) {
       final match = RegExp('--$name:\\s*(#[0-9A-Fa-f]{6})').firstMatch(block);
@@ -76,6 +77,69 @@ void main() {
         expect(value(darkBlock, entry.key), _hex(entry.value.$2));
       });
     }
+  });
+
+  group('instalável na tela de início', () {
+    final manifest =
+        jsonDecode(File('web/manifest.json').readAsStringSync())
+            as Map<String, dynamic>;
+
+    test('o manifesto tem nome, modo e cores', () {
+      expect(manifest['name'], isNotEmpty);
+      expect(manifest['short_name'], isNotEmpty);
+      expect(manifest['display'], 'standalone');
+      expect(manifest['theme_color'], _hex(AppTokens.dark.background));
+      expect(manifest['background_color'], _hex(AppTokens.dark.background));
+    });
+
+    test('tem ícone comum e recortável, em 192 e 512', () {
+      final icons = (manifest['icons']! as List).cast<Map<String, dynamic>>();
+      for (final purpose in const ['any', 'maskable']) {
+        for (final size in const ['192x192', '512x512']) {
+          expect(
+            icons.any((i) => i['purpose'] == purpose && i['sizes'] == size),
+            isTrue,
+            reason: 'falta ícone \$purpose \$size',
+          );
+        }
+      }
+      for (final icon in icons) {
+        expect(
+          File('web/${icon['src']}').existsSync(),
+          isTrue,
+          reason: '${icon['src']} está no manifesto mas não existe',
+        );
+      }
+    });
+
+    test('o iOS tem ícone e nome curto para a tela de início', () {
+      expect(html, contains('rel="apple-touch-icon"'));
+      expect(html, contains('name="apple-mobile-web-app-title"'));
+    });
+
+    // Sem service worker o Chrome não oferece instalar, e o bootstrap
+    // próprio não o registra de graça.
+    test('o service worker é registrado pelo bootstrap próprio', () {
+      final bootstrap = File('web/flutter_bootstrap.js').readAsStringSync();
+      expect(bootstrap, contains('serviceWorkerSettings'));
+      expect(bootstrap, contains('flutter_service_worker_version'));
+    });
+
+    test('a moldura do navegador acompanha o tema', () {
+      for (final entry in <String, Color>{
+        'light': AppTokens.light.background,
+        'dark': AppTokens.dark.background,
+      }.entries) {
+        expect(
+          html,
+          contains(
+            'name="theme-color" media="(prefers-color-scheme: ${entry.key})" '
+            'content="${_hex(entry.value)}"',
+          ),
+          reason: 'theme-color de ${entry.key} fora dos tokens',
+        );
+      }
+    });
   });
 
   group('o Flutter é carregado dentro da moldura', () {

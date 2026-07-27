@@ -110,6 +110,48 @@ lib/features/    uma pasta por app do sistema
 lib/shared/      widgets reutilizáveis
 ```
 
+## Orçamento de performance
+
+Medido, não estimado: os bytes são os do build comprimido em brotli, que é o
+que o Cloudflare entrega. O tempo é derivado deles num perfil declarado —
+**4G lento: 1,6 Mbit/s de descida (≈200 KB/s) e 150 ms de ida e volta**, o
+mesmo que o Lighthouse chama de "Slow 4G". Refazer a medição:
+
+```
+flutter build web --release --wasm
+brotli -c -q 11 build/web/main.dart.wasm | wc -c
+```
+
+O site tem duas "primeiras telas", e elas chegam em tempos muito diferentes:
+
+| | antes | depois |
+|---|---|---|
+| Texto da moldura (HTML, sem JavaScript) | 2,1 KB · **~0,2 s** | 2,1 KB · **~0,2 s** |
+| Sistema utilizável, navegador moderno | 2 210 KB · ~11,2 s | **1 847 KB · ~9,4 s** |
+| Sistema utilizável, navegador antigo | 2 812 KB · ~14,2 s | 2 211 KB · ~11,2 s |
+
+O texto da moldura chega no primeiro pacote porque é HTML servido direto — é
+o motivo de ele existir, e é o que um visitante em rede ruim lê enquanto o
+resto carrega.
+
+**O que mudou.** Passar a compilar com `--wasm` foi a única mudança que valeu
+dinheiro. Ela produz os dois alvos — `dart2wasm` + `skwasm` para quem tem
+WasmGC, `dart2js` + `canvaskit` para o resto — e o carregador escolhe: nada
+quebra em navegador velho, e o moderno baixa 1,16 MB de motor em vez de 1,57
+(variante Chromium) ou 2,18 (canvaskit genérico). Saiu também a dependência
+`cupertino_icons`, que não era usada: os glifos são todos próprios. Foram 1,5 KB
+e nenhum pixel de diferença nos vinte retratos.
+
+**O que não vale a pena, e por quê.** O motor é 63% do que se baixa; o código
+do app é 653 KB. Carregamento adiado dividiria o código do app, não o motor,
+e a primeira tela precisa do motor inteiro — dividir o menor pedaço não
+encurta a espera. Fonte não há: a tipografia é a pilha do sistema, e as duas
+fontes de ícone que sobram somam 3,2 KB depois de sacudidas. Imagem também
+não: os PNGs do manifesto não estão no caminho crítico.
+
+Nada disso está no CI de propósito. Isto é medição, não infraestrutura: um
+orçamento automatizado que ninguém lê vira mais um passo verde.
+
 ## Rodar
 
 ```

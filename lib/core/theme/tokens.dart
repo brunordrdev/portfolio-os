@@ -19,6 +19,7 @@ class AppTokens {
     required this.onWallpaperMuted,
     required this.textSecondary,
     required this.accent,
+    required this.accentOnSurface,
     required this.badge,
     required this.wallpaperTop,
     required this.wallpaperMid,
@@ -65,8 +66,17 @@ class AppTokens {
   /// Texto de apoio dentro de superfícies claras (cartões, folhas).
   final Color textSecondary;
 
-  /// Âmbar da identidade: seleção, foco, destaque.
+  /// Âmbar da identidade: seleção, foco, destaque. É seguro sobre o papel de
+  /// parede, que é onde ele aparece — o "olá" da tela de bloqueio.
   final Color accent;
+
+  /// O mesmo acento, para texto sobre fundo liso.
+  ///
+  /// No escuro os dois são iguais: o fundo é escuro dos dois lados. No claro
+  /// não: o acento da identidade dá 4,10:1 sobre a página, abaixo do piso de
+  /// 4,5, então aqui ele é mais escuro. Um token só não servia para os dois
+  /// trabalhos, que é o gatilho que estava estacionado no CLAUDE.md.
+  final Color accentOnSurface;
 
   /// Vermelho do selo. Escasso de propósito — um ícone só o usa.
   final Color badge;
@@ -110,6 +120,7 @@ class AppTokens {
     onWallpaperMuted: Color(0xFFB8AEA0),
     textSecondary: Color(0xFF8D8478),
     accent: Color(0xFFE8A94E),
+    accentOnSurface: Color(0xFFE8A94E),
     badge: Color(0xFFE2532F),
     wallpaperTop: Color(0xFF0A1113),
     wallpaperMid: Color(0xFF100D0B),
@@ -143,6 +154,8 @@ class AppTokens {
     onWallpaperMuted: Color(0xFF63503F),
     textSecondary: Color(0xFF948B7D),
     accent: Color(0xFFA64420),
+    // 5,29:1 sobre a página e 7,81:1 sobre o cartão embutido.
+    accentOnSurface: Color(0xFF8E3616),
     badge: Color(0xFFE2532F),
     wallpaperTop: Color(0xFFBFE3E0),
     wallpaperMid: Color(0xFFFFE0C4),

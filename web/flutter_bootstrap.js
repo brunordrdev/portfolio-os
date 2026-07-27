@@ -10,4 +10,10 @@ _flutter.loader.load({
   config: {
     hostElement: document.querySelector('#stage'),
   },
+  // Sem isto o service worker não registra, e sem service worker o Chrome não
+  // oferece instalar. O bootstrap padrão passa isto; ao trocá-lo por um
+  // próprio, a linha veio junto — de graça não vem.
+  serviceWorkerSettings: {
+    serviceWorkerVersion: {{flutter_service_worker_version}},
+  },
 });

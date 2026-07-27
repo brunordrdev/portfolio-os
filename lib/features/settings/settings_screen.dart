@@ -105,10 +105,10 @@ class _Fact extends StatelessWidget {
                   fact.value,
                   textAlign: TextAlign.end,
                   style: TextStyle(
-                    // O acento reprovaria: sobre o fundo claro ele dá 4,10:1,
-                    // abaixo do piso de 4,5. Quem sinaliza que a linha abre
-                    // algo é o toque da pele, não a cor.
-                    color: tokens.onWallpaper,
+                    // O que abre algo é escrito em acento; o resto, não.
+                    color: url == null
+                        ? tokens.onWallpaperMuted
+                        : tokens.accentOnSurface,
                     fontSize: 14.5,
                     fontFamilyFallback: spec.fontFallback,
                   ),

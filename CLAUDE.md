@@ -40,12 +40,33 @@ Comentários em português. Identificadores em inglês.
    rótulos da tela inicial em 1,3:1 desde o primeiro commit, invisíveis no
    tema claro, sem nenhum teste reclamar.
 
-   O piso é **4,5:1 para todo texto sobre o papel de parede, nos quatro
-   modos**, medido no pixel real atrás de cada elemento — não na cor do token.
-   Texto com alfa vale pelo que sobra depois de misturar com o fundo, e é por
-   isso que aqui não se apaga texto com opacidade: quem precisa ser mais
-   fraco usa `onWallpaperMuted`, que é cor própria e passa no piso.
-   `test/contrast_test.dart` cobra isso e falha o CI.
+   O piso é **4,5:1 para todo texto, sobre o papel de parede e sobre fundo
+   liso, nos quatro modos**, medido no pixel real atrás de cada elemento —
+   não na cor do token. Texto com alfa vale pelo que sobra depois de misturar
+   com o fundo, e é por isso que aqui não se apaga texto com opacidade: quem
+   precisa ser mais fraco usa `onWallpaperMuted`, que é cor própria e passa
+   no piso. `test/contrast_test.dart` cobra isso e falha o CI.
+
+   **O que a medição não vê.** Sobre o papel de parede ela lê o pixel de
+   verdade, e é exata. Sobre fundo liso ela lê a cor do `Scaffold`, e uma
+   tela pode desenhar um cartão por cima — no cartão embutido do iOS o fundo
+   real é `surface`, não `background`. No tema claro isso a torna pessimista,
+   que é seguro; no escuro, otimista, porque `surface` é mais claro que o
+   fundo.
+
+   **Gatilho:** enquanto a pior medição no escuro estiver em 5:1 ou acima, a
+   folga cobre a diferença e a aproximação se paga. Se cair abaixo, a medição
+   precisa passar a ler o fundo real de cada texto. O próprio teste cobra
+   esse piso — não é um lembrete, é uma asserção. Hoje a pior está em 8,46:1.
+
+8. **Acento tem dois papéis.** `accent` é a identidade e é seguro sobre o
+   papel de parede — é o "olá" da tela de bloqueio. `accentOnSurface` é
+   acento como texto sobre fundo liso. No tema escuro os dois são o mesmo
+   valor; no claro, o segundo é mais escuro, porque o acento da identidade dá
+   4,10:1 sobre a página e o piso é 4,5.
+
+   Cabeçalho de seção não usa acento: usa `onWallpaperMuted`. Acento aponta
+   para o que abre alguma coisa, e não para o que só organiza a lista.
 
 ---
 
@@ -84,13 +105,11 @@ texto indexável na moldura web.
 pastas, espanhol, gaveta de apps, central de notificações, widgets, múltiplas
 páginas, backend na casca.
 
-**Estacionado com gatilho:** `accent` se divide em `accent` e
-`accentOnWallpaper` **se** algum dia for preciso accent vivo sobre superfície no
-tema claro. Hoje não é. O accent claro foi escurecido para `#A64420` porque o
-"olá" da tela de bloqueio é escrito nele e reprovava em 2,65:1 sobre o papel de
-parede. Enquanto o único texto em accent estiver sobre o papel de parede, um
-token resolve; no dia em que aparecer accent dentro de um cartão branco, aí sim
-são dois papéis diferentes e a divisão se paga.
+**Gatilho acionado — a divisão do acento aconteceu.** Ficava estacionado aqui
+que `accent` se dividiria se algum dia fosse preciso acento vivo sobre
+superfície no tema claro. Foi: a tela de Ajustes trouxe o link do repositório,
+e o acento da identidade dá 4,10:1 sobre a página clara. Hoje são `accent` e
+`accentOnSurface` — ver a regra dura nº 8.
 
 Sugestões de escopo novo vão para a seção de estacionamento, não para o código.
 
