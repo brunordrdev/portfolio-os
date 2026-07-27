@@ -124,11 +124,11 @@ brotli -c -q 11 build/web/main.dart.wasm | wc -c
 
 O site tem duas "primeiras telas", e elas chegam em tempos muito diferentes:
 
-| | antes | depois |
-|---|---|---|
-| Texto da moldura (HTML, sem JavaScript) | 2,1 KB · **~0,2 s** | 2,1 KB · **~0,2 s** |
-| Sistema utilizável, navegador moderno | 2 210 KB · ~11,2 s | **1 847 KB · ~9,4 s** |
-| Sistema utilizável, navegador antigo | 2 812 KB · ~14,2 s | 2 211 KB · ~11,2 s |
+| | antes | com `--wasm` | hoje |
+|---|---|---|---|
+| Texto da moldura (HTML, sem JavaScript) | 2,1 KB · **~0,2 s** | 2,1 KB · ~0,2 s | 2,1 KB · **~0,2 s** |
+| Sistema utilizável, navegador moderno | 2 210 KB · ~11,2 s | 1 847 KB · ~9,4 s | **2 069 KB · ~10,3 s** |
+| Sistema utilizável, navegador antigo | 2 812 KB · ~14,2 s | 2 211 KB · ~11,2 s | 2 433 KB · ~12,3 s |
 
 O texto da moldura chega no primeiro pacote porque é HTML servido direto — é
 o motivo de ele existir, e é o que um visitante em rede ruim lê enquanto o
@@ -141,6 +141,14 @@ quebra em navegador velho, e o moderno baixa 1,16 MB de motor em vez de 1,57
 (variante Chromium) ou 2,18 (canvaskit genérico). Saiu também a dependência
 `cupertino_icons`, que não era usada: os glifos são todos próprios. Foram 1,5 KB
 e nenhum pixel de diferença nos vinte retratos.
+
+**O que a fidelidade custou.** Embutir o Roboto para a pele Android são
+220 KB em três pesos, e reverteu mais da metade do que o `--wasm` tinha
+economizado. Vale saber que **todos pagam**: o Flutter web baixa as fontes do
+manifesto antes do primeiro quadro, então quem fica no iOS — que usa a pilha
+do sistema — carrega o Roboto do mesmo jeito. Se um dia essa conta apertar, o
+caminho é carregar a fonte sob demanda, quando a pele Android for escolhida,
+em vez de declará-la no manifesto.
 
 **O que não vale a pena, e por quê.** O motor é 63% do que se baixa; o código
 do app é 653 KB. Carregamento adiado dividiria o código do app, não o motor,

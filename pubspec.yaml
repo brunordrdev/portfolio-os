@@ -67,6 +67,23 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    # Roboto embutido, sob Apache 2.0 (assets/fonts/Roboto-LICENSE.txt). A
+    # pele Android pede a fonte do Material, e depender da que o visitante
+    # tem instalada é depender do que não se controla: no macOS não há
+    # Roboto, e a pilha caía em Arial.
+    #
+    # Só os três pesos que o projeto usa. O w600 de alguns títulos resolve
+    # no Medium, que é o vizinho mais próximo declarado.
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
