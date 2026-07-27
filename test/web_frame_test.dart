@@ -14,6 +14,12 @@ import 'package:portfolio_os/core/theme/tokens.dart';
 String _hex(Color color) =>
     '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
 
+/// Com alfa, na ordem do CSS: #RRGGBBAA. Em Dart o alfa vem primeiro.
+String _rgba(Color color) {
+  final argb = color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase();
+  return '#${argb.substring(2)}${argb.substring(0, 2)}';
+}
+
 void main() {
   final html = File('web/index.html').readAsStringSync();
 
@@ -56,13 +62,19 @@ void main() {
     final lightBlock = html.substring(0, html.indexOf(darkRule));
 
     String value(String block, String name) {
-      final match = RegExp('--$name:\\s*(#[0-9A-Fa-f]{6})').firstMatch(block);
+      final match = RegExp('--$name:\\s*(#[0-9A-Fa-f]{6,8})').firstMatch(block);
       expect(match, isNotNull, reason: '--$name não encontrado');
       return match!.group(1)!.toUpperCase();
     }
 
     final expected = <String, (Color light, Color dark)>{
       'frame-bg': (AppTokens.light.background, AppTokens.dark.background),
+      'wp-top': (AppTokens.light.wallpaperTop, AppTokens.dark.wallpaperTop),
+      'wp-mid': (AppTokens.light.wallpaperMid, AppTokens.dark.wallpaperMid),
+      'wp-bottom': (
+        AppTokens.light.wallpaperBottom,
+        AppTokens.dark.wallpaperBottom,
+      ),
       'frame-ink': (AppTokens.light.onWallpaper, AppTokens.dark.onWallpaper),
       'frame-muted': (
         AppTokens.light.onWallpaperMuted,
@@ -139,6 +151,63 @@ void main() {
           reason: 'theme-color de ${entry.key} fora dos tokens',
         );
       }
+    });
+  });
+
+  group('a tela de bloqueio existe antes do Flutter', () {
+    // O Flutter web leva segundos para montar numa rede ruim. Até esta
+    // camada existir, o visitante de celular via a tela vazia nesse tempo.
+    // Recortado na própria camada: procurar no documento inteiro passaria
+    // pela meta description, que também diz "desenvolvedor mobile".
+    final lock = html.substring(
+      html.indexOf('<div id="lock">'),
+      html.indexOf('<div id="stage">'),
+    );
+
+    test('tem o cumprimento, o nome, o cargo e a dica', () {
+      for (final fragment in const [
+        'olá',
+        'me chamo Bruno',
+        'desenvolvedor mobile',
+        'arraste para cima',
+      ]) {
+        expect(lock, contains(fragment), reason: fragment);
+      }
+    });
+
+    test('fica atrás do Flutter, que a cobre sem piscar', () {
+      // Sem fundo em #stage, o que se vê enquanto ele está vazio é a camada
+      // de baixo. Com fundo, haveria um retângulo liso no lugar dela.
+      expect(html, contains('#stage { z-index: 1; background: transparent; }'));
+      expect(html, contains('#lock { z-index: 0; }'));
+    });
+
+    test('não inventa relógio', () {
+      // Hora que não anda é enfeite, e enfeite é proibido pela regra 5.
+      expect(RegExp(r'\d\d:\d\d').hasMatch(lock), isFalse);
+    });
+
+    for (final glow in const ['wp-cool', 'wp-warm']) {
+      test('--$glow tem alfa embutido, como o token', () {
+        expect(
+          RegExp('--$glow:\\s*#[0-9A-Fa-f]{8}').hasMatch(html),
+          isTrue,
+          reason: '$glow precisa dos oito dígitos: a luz tem alfa',
+        );
+      });
+    }
+
+    test('os brilhos batem com os tokens', () {
+      final darkRule = '@media (prefers-color-scheme: dark)';
+      final dark = html.substring(html.indexOf(darkRule));
+      final light = html.substring(0, html.indexOf(darkRule));
+      String value(String block, String name) =>
+          RegExp('--$name:\\s*(#[0-9A-Fa-f]{8})').firstMatch(block)!.group(1)!;
+
+      expect(value(light, 'wp-cool'), _rgba(AppTokens.light.coolGlow));
+      expect(value(light, 'wp-warm'), _rgba(AppTokens.light.warmGlow));
+      expect(value(dark, 'wp-cool'), _rgba(AppTokens.dark.coolGlow));
+      expect(value(dark, 'wp-warm'), _rgba(AppTokens.dark.warmGlow));
     });
   });
 

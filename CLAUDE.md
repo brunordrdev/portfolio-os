@@ -105,6 +105,13 @@ texto indexável na moldura web.
 pastas, espanhol, gaveta de apps, central de notificações, widgets, múltiplas
 páginas, backend na casca.
 
+**Estacionado com gatilho:** o service worker é o do Flutter, e o próprio
+Flutter avisa no build que ele está **depreciado e sai numa versão futura**.
+Quando sair, o PWA deixa de ser instalável no Chrome sem que nada quebre em
+teste — e será preciso escrever um próprio, com um `fetch` que responda
+offline. O gatilho é o dia em que o aviso virar remoção: se o build parar de
+gerar `flutter_service_worker.js`, é isso.
+
 **Gatilho acionado — a divisão do acento aconteceu.** Ficava estacionado aqui
 que `accent` se dividiria se algum dia fosse preciso acento vivo sobre
 superfície no tema claro. Foi: a tela de Ajustes trouxe o link do repositório,

@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Bruno Rodrigues">
   <meta property="og:title" content="Bruno R. — Mobile Engineer">
   <meta property="og:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
-  <meta property="og:image" content="icons/Icon-512.png">
+  <meta property="og:image" content="icons/icon-512.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Bruno R. — Mobile Engineer">
   <meta name="twitter:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
@@ -30,7 +30,7 @@
        de AppTokens.background; web_frame_test compara os dois. -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFC9AE">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16130F">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <title>Bruno R. — Mobile Engineer</title>
@@ -49,6 +49,11 @@
       --frame-ink: #5A4A3A;     /* AppTokens.light.onWallpaper */
       --frame-muted: #63503F;   /* AppTokens.light.onWallpaperMuted */
       --frame-accent: #A64420;  /* AppTokens.light.accent */
+      --wp-top: #BFE3E0;        /* AppTokens.light.wallpaperTop */
+      --wp-mid: #FFE0C4;        /* AppTokens.light.wallpaperMid */
+      --wp-bottom: #FFCBA4;     /* AppTokens.light.wallpaperBottom */
+      --wp-cool: #7FC9C042;     /* AppTokens.light.coolGlow */
+      --wp-warm: #FF9E5C4D;     /* AppTokens.light.warmGlow */
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -56,6 +61,11 @@
         --frame-ink: #ECE5D9;   /* AppTokens.dark.onWallpaper */
         --frame-muted: #B8AEA0; /* AppTokens.dark.onWallpaperMuted */
         --frame-accent: #E8A94E;/* AppTokens.dark.accent */
+        --wp-top: #0A1113;      /* AppTokens.dark.wallpaperTop */
+        --wp-mid: #100D0B;      /* AppTokens.dark.wallpaperMid */
+        --wp-bottom: #191009;   /* AppTokens.dark.wallpaperBottom */
+        --wp-cool: #386E7C66;   /* AppTokens.dark.coolGlow */
+        --wp-warm: #F0A04657;   /* AppTokens.dark.warmGlow */
       }
     }
 
@@ -105,15 +115,70 @@
       de quebra ela tem o tamanho de um celular, abaixo dele ocupa a tela.
       Quem decide é o CSS; o Dart não precisa saber de nada disso.
     */
-    #stage {
+    .device {
+      position: relative;
       flex: none;
       width: 390px;
       height: min(908px, calc(100dvh - 112px));
       border-radius: 42px;
       overflow: hidden;
-      background: var(--frame-bg);
       box-shadow: 0 32px 90px rgba(0, 0, 0, 0.42);
     }
+
+    /*
+      As duas camadas do aparelho, uma em cima da outra.
+
+      Embaixo, a tela de bloqueio em CSS: ela aparece no primeiro quadro,
+      antes de qualquer JavaScript. Em cima, o Flutter, que é opaco e a cobre
+      sozinho quando termina de montar — não há troca, nem código de
+      transição, nem instante com nada na tela. Por isso `#stage` não tem
+      fundo: enquanto ele está vazio, o que se vê é a camada de baixo.
+    */
+    #lock, #stage { position: absolute; inset: 0; }
+    #lock { z-index: 0; }
+    #stage { z-index: 1; background: transparent; }
+
+    #lock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 102%, var(--wp-warm) 0%, transparent 30%),
+        radial-gradient(circle at 50% -12%, var(--wp-cool) 0%, transparent 32%),
+        linear-gradient(180deg,
+          var(--wp-top) 0%, var(--wp-mid) 52%, var(--wp-bottom) 100%);
+    }
+
+    #lock .hello {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-style: italic;
+      font-size: 44px;
+      line-height: 1.1;
+      color: var(--frame-accent);
+    }
+    #lock .who {
+      margin: 12px 0 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--frame-ink);
+    }
+    #lock .job {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--frame-muted);
+    }
+    #lock .swipe {
+      position: absolute;
+      bottom: 34px;
+      left: 0;
+      right: 0;
+      color: var(--frame-muted);
+      font-size: 12px;
+    }
+    #lock .swipe svg { display: block; margin: 0 auto 6px; }
 
     /*
       Abaixo do ponto de quebra a moldura some e o Flutter ocupa tudo: no
@@ -123,7 +188,7 @@
     */
     @media (max-width: 899px) {
       body { overflow: hidden; }
-      #stage {
+      .device {
         position: fixed;
         inset: 0;
         z-index: 10;
@@ -164,7 +229,34 @@
       </p>
     </section>
 
-    <div id="stage"></div>
+    <!--
+      A tela de bloqueio, em CSS.
+
+      O Flutter web leva alguns segundos para montar numa rede ruim, e até
+      aqui o visitante de celular via a tela vazia nesse tempo. A tela de
+      bloqueio foi justificada como estado de carregamento desde o começo do
+      projeto — sendo Flutter, ela nunca pôde cumprir esse papel. Esta versão
+      cumpre: chega no primeiro byte e é coberta pela de verdade.
+
+      Não tem relógio nem data: aqui não há como saber a hora, e número que
+      não muda é enfeite.
+    -->
+    <div class="device">
+      <div id="lock">
+        <p class="hello">olá</p>
+        <p class="who">me chamo Bruno</p>
+        <p class="job">desenvolvedor mobile</p>
+        <div class="swipe">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 19.5V5"/><path d="M6.5 10.5L12 5l5.5 5.5"/>
+          </svg>
+          arraste para cima
+        </div>
+      </div>
+      <div id="stage"></div>
+    </div>
   </main>
 
   <script src="flutter_bootstrap.js" async></script>
