@@ -28,8 +28,10 @@ void main() {
     }
 
     test('há um parágrafo, e não só rótulos soltos', () {
-      final lede = RegExp(r'<p class="lede">(.*?)</p>', dotAll: true)
-          .firstMatch(html);
+      final lede = RegExp(
+        r'<p class="lede">(.*?)</p>',
+        dotAll: true,
+      ).firstMatch(html);
       expect(lede, isNotNull, reason: 'o parágrafo curto sumiu do HTML');
       expect(lede!.group(1)!.trim().length, greaterThan(120));
     });
@@ -47,7 +49,9 @@ void main() {
 
   group('as cores da moldura são as do sistema', () {
     // Fora do bloco escuro estão os valores claros; dentro dele, os escuros.
-    final darkBlock = html.substring(html.indexOf('prefers-color-scheme: dark'));
+    final darkBlock = html.substring(
+      html.indexOf('prefers-color-scheme: dark'),
+    );
     final lightBlock = html.substring(0, html.indexOf('prefers-color-scheme'));
 
     String value(String block, String name) {

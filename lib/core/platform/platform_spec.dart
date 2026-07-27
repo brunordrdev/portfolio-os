@@ -96,6 +96,28 @@ abstract class PlatformSpec {
     required Color foreground,
   });
 
+  /// Uma seção de lista de ajustes.
+  ///
+  /// No iOS, um cartão embutido com o título acima em maiúsculas pequenas e
+  /// separadores recuados; no Android, um cabeçalho no acento e linhas de
+  /// borda a borda com divisores do Material. É a lista onde as duas
+  /// linguagens de projeto mais se afastam.
+  ///
+  /// Ao contrário de `screenHeader`, as cores não vêm por parâmetro: são
+  /// muitas, e os widgets devolvidos aqui leem os tokens do contexto.
+  Widget settingsSection({required String header, required List<Widget> rows});
+
+  /// Uma opção escolhível dentro de uma seção.
+  ///
+  /// No iOS a escolha é uma marca de conferido à direita; no Android é o
+  /// botão de rádio do Material à esquerda. Cada plataforma tem uma resposta
+  /// para "uma entre várias", e as duas estão aqui.
+  Widget settingsOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  });
+
   /// Rota de página com a transição da plataforma.
   Route<T> pageRoute<T>({
     required WidgetBuilder builder,

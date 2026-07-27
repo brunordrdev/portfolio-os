@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
 import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
+import 'package:portfolio_os/core/settings/settings.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
 import 'package:portfolio_os/features/lock/lock_screen.dart';
@@ -103,15 +104,18 @@ void main() {
 
           Future<void> pumpApp() async {
             await tester.pumpWidget(
-              PlatformScope(
-                controller: controller,
-                child: ContentScope(
-                  content: AppContent.pt,
-                  child: TokensScope(
-                    tokens: tokens,
-                    child: MaterialApp.router(
-                      routerConfig: router,
-                      debugShowCheckedModeBanner: false,
+              SettingsScope(
+                controller: SettingsController(),
+                child: PlatformScope(
+                  controller: controller,
+                  child: ContentScope(
+                    content: AppContent.pt,
+                    child: TokensScope(
+                      tokens: tokens,
+                      child: MaterialApp.router(
+                        routerConfig: router,
+                        debugShowCheckedModeBanner: false,
+                      ),
                     ),
                   ),
                 ),
@@ -225,15 +229,18 @@ void main() {
         addTearDown(router.dispose);
 
         await tester.pumpWidget(
-          PlatformScope(
-            controller: controller,
-            child: ContentScope(
-              content: AppContent.pt,
-              child: TokensScope(
-                tokens: tokens,
-                child: MaterialApp.router(
-                  routerConfig: router,
-                  debugShowCheckedModeBanner: false,
+          SettingsScope(
+            controller: SettingsController(),
+            child: PlatformScope(
+              controller: controller,
+              child: ContentScope(
+                content: AppContent.pt,
+                child: TokensScope(
+                  tokens: tokens,
+                  child: MaterialApp.router(
+                    routerConfig: router,
+                    debugShowCheckedModeBanner: false,
+                  ),
                 ),
               ),
             ),

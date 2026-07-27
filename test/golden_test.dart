@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
 import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
+import 'package:portfolio_os/core/settings/settings.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/app/web_stage.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
@@ -48,17 +49,20 @@ void main() {
     addTearDown(router.dispose);
 
     await tester.pumpWidget(
-      PlatformScope(
-        controller: controller,
-        child: ContentScope(
-          content: AppContent.pt,
-          child: TokensScope(
-            tokens: tokens,
-            // Igual ao app de verdade: sem a faixa de debug, que cobriria
-            // justamente o canto onde ficam o sinal e a bateria.
-            child: MaterialApp.router(
-              routerConfig: router,
-              debugShowCheckedModeBanner: false,
+      SettingsScope(
+        controller: SettingsController(),
+        child: PlatformScope(
+          controller: controller,
+          child: ContentScope(
+            content: AppContent.pt,
+            child: TokensScope(
+              tokens: tokens,
+              // Igual ao app de verdade: sem a faixa de debug, que cobriria
+              // justamente o canto onde ficam o sinal e a bateria.
+              child: MaterialApp.router(
+                routerConfig: router,
+                debugShowCheckedModeBanner: false,
+              ),
             ),
           ),
         ),
@@ -81,6 +85,9 @@ void main() {
     'sobre': Routes.about,
     'experiencia': Routes.experience,
     'curriculo': Routes.resume,
+    // Onde as duas linguagens de projeto mais se afastam: cartão embutido com
+    // marca de conferido de um lado, divisores e botão de rádio do outro.
+    'ajustes': Routes.settings,
   };
 
   for (final skin in skins.entries) {
@@ -100,15 +107,18 @@ void main() {
             addTearDown(router.dispose);
 
             await tester.pumpWidget(
-              PlatformScope(
-                controller: controller,
-                child: ContentScope(
-                  content: AppContent.pt,
-                  child: TokensScope(
-                    tokens: palette.value,
-                    child: MaterialApp.router(
-                      routerConfig: router,
-                      debugShowCheckedModeBanner: false,
+              SettingsScope(
+                controller: SettingsController(),
+                child: PlatformScope(
+                  controller: controller,
+                  child: ContentScope(
+                    content: AppContent.pt,
+                    child: TokensScope(
+                      tokens: palette.value,
+                      child: MaterialApp.router(
+                        routerConfig: router,
+                        debugShowCheckedModeBanner: false,
+                      ),
                     ),
                   ),
                 ),
@@ -150,16 +160,19 @@ void main() {
         addTearDown(router.dispose);
 
         await tester.pumpWidget(
-          PlatformScope(
-            controller: controller,
-            child: ContentScope(
-              content: AppContent.pt,
-              child: TokensScope(
-                tokens: AppTokens.dark,
-                child: MaterialApp.router(
-                  routerConfig: router,
-                  debugShowCheckedModeBanner: false,
-                  builder: webStage,
+          SettingsScope(
+            controller: SettingsController(),
+            child: PlatformScope(
+              controller: controller,
+              child: ContentScope(
+                content: AppContent.pt,
+                child: TokensScope(
+                  tokens: AppTokens.dark,
+                  child: MaterialApp.router(
+                    routerConfig: router,
+                    debugShowCheckedModeBanner: false,
+                    builder: webStage,
+                  ),
                 ),
               ),
             ),

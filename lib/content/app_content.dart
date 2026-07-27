@@ -31,6 +31,56 @@ final class ItemMeta extends ContentBlock {
   const ItemMeta(super.text);
 }
 
+/// Uma linha de "Sobre este sistema": o que foi escolhido, e por quê.
+///
+/// O porquê está junto de propósito. Uma lista de tecnologias diz o que a
+/// pessoa usou; o motivo de cada uma diz se ela escolheu.
+@immutable
+class SystemFact {
+  const SystemFact({
+    required this.label,
+    required this.value,
+    required this.why,
+    this.url,
+  });
+
+  final String label;
+  final String value;
+  final String why;
+  final String? url;
+}
+
+/// O texto da tela de Ajustes.
+@immutable
+class SettingsText {
+  const SettingsText({
+    required this.languageSection,
+    required this.appearanceSection,
+    required this.systemSection,
+    required this.portuguese,
+    required this.english,
+    required this.light,
+    required this.dark,
+    required this.followSystem,
+    required this.facts,
+  });
+
+  final String languageSection;
+  final String appearanceSection;
+  final String systemSection;
+
+  /// Os nomes dos idiomas não se traduzem: quem procura "English" numa lista
+  /// em português precisa achar "English".
+  final String portuguese;
+  final String english;
+
+  final String light;
+  final String dark;
+  final String followSystem;
+
+  final List<SystemFact> facts;
+}
+
 /// Os nomes dos apps, na grade e na doca.
 @immutable
 class AppNames {
@@ -97,6 +147,7 @@ class AppContent {
     required this.language,
     required this.apps,
     required this.lock,
+    required this.settings,
     required this.about,
     required this.experience,
     required this.resume,
@@ -108,6 +159,7 @@ class AppContent {
 
   final AppNames apps;
   final LockText lock;
+  final SettingsText settings;
 
   final List<ContentBlock> about;
   final List<ContentBlock> experience;
@@ -169,6 +221,61 @@ class AppContent {
         'dezembro',
       ],
       dateTemplate: '{weekday}, {day} de {month} · Aracaju',
+    ),
+    settings: SettingsText(
+      languageSection: 'Idioma',
+      appearanceSection: 'Aparência',
+      systemSection: 'Sobre este sistema',
+      portuguese: 'Português',
+      english: 'English',
+      light: 'Claro',
+      dark: 'Escuro',
+      followSystem: 'Sistema',
+      facts: [
+        SystemFact(
+          label: 'Flutter',
+          value: '3.41.4 · Dart 3.11.1',
+          why:
+              'A versão está fixada no CI, igual à desta máquina, e um passo '
+              'do build reprova se o pubspec.lock mudar. Um "latest" que anda '
+              'sozinho transforma erro de compilador em mistério, e faz o que '
+              'é publicado deixar de ser o que foi testado.',
+        ),
+        SystemFact(
+          label: 'Hospedagem',
+          value: 'Cloudflare Pages',
+          why:
+              'Arquivo estático na borda, sem servidor para manter. A casca '
+              'não tem backend de propósito: banco entra junto com o ambiente '
+              'demonstrado, e pertence ao app demonstrado, não ao portfólio.',
+        ),
+        SystemFact(
+          label: 'Publicação',
+          value: 'GitHub Actions, a cada push na main',
+          why:
+              'O mesmo push que analisa, testa e compila é o que publica. '
+              'Entre eles há um passo que reprova o build se qualquer tela '
+              'fora da costura perguntar em que plataforma está rodando — a '
+              'regra do projeto verificada por máquina, e não por disciplina.',
+        ),
+        SystemFact(
+          label: 'Retratos de tela',
+          value: 'Comparados num runner macOS',
+          why:
+              'Comparação de pixel não sobrevive à troca de plataforma: entre '
+              'este Mac e o Linux do CI, 1,13% dos pontos divergem sem nada '
+              'ter mudado — mais do que a menor regressão real, que é 0,40%. '
+              'Então eles rodam onde foram gerados.',
+        ),
+        SystemFact(
+          label: 'Código',
+          value: 'github.com/brunordrdev/portfolio-os',
+          url: 'https://github.com/brunordrdev/portfolio-os',
+          why:
+              'Aberto, com o histórico inteiro. As decisões desta lista estão '
+              'escritas nas mensagens de commit, uma a uma.',
+        ),
+      ],
     ),
     about: [
       Prose(
@@ -325,6 +432,62 @@ class AppContent {
         'December',
       ],
       dateTemplate: '{weekday}, {month} {day} · Aracaju',
+    ),
+    settings: SettingsText(
+      languageSection: 'Language',
+      appearanceSection: 'Appearance',
+      systemSection: 'About this system',
+      portuguese: 'Português',
+      english: 'English',
+      light: 'Light',
+      dark: 'Dark',
+      followSystem: 'System',
+      facts: [
+        SystemFact(
+          label: 'Flutter',
+          value: '3.41.4 · Dart 3.11.1',
+          why:
+              'The version is pinned in CI, identical to the one on this '
+              'machine, and a build step fails if pubspec.lock moves. A '
+              '"latest" that drifts on its own turns a compiler error into a '
+              'mystery, and makes what ships stop being what was tested.',
+        ),
+        SystemFact(
+          label: 'Hosting',
+          value: 'Cloudflare Pages',
+          why:
+              'Static files at the edge, no server to keep alive. The shell '
+              'has no backend on purpose: a database arrives with the '
+              'environment being demonstrated, and belongs to that app, not '
+              'to the portfolio.',
+        ),
+        SystemFact(
+          label: 'Deploys',
+          value: 'GitHub Actions, on every push to main',
+          why:
+              'The same push that analyses, tests and builds is the one that '
+              'ships. Between them sits a step that fails the build if any '
+              'screen outside the seam asks which platform it is running on — '
+              'the project rule checked by a machine, not by discipline.',
+        ),
+        SystemFact(
+          label: 'Screen goldens',
+          value: 'Compared on a macOS runner',
+          why:
+              'Pixel comparison does not survive a change of platform: '
+              'between this Mac and the CI Linux, 1.13% of the pixels differ '
+              'with nothing having changed — more than the smallest real '
+              'regression, which is 0.40%. So they run where they were made.',
+        ),
+        SystemFact(
+          label: 'Source',
+          value: 'github.com/brunordrdev/portfolio-os',
+          url: 'https://github.com/brunordrdev/portfolio-os',
+          why:
+              'Open, with the whole history. The decisions on this list are '
+              'written out in the commit messages, one by one.',
+        ),
+      ],
     ),
     about: [
       Prose(

@@ -12,11 +12,64 @@ import '../motion/app_open_page.dart';
 /// Nenhuma tela monta o próprio cabeçalho — ele vem da pele ativa, e é aí que
 /// a troca de plataforma aparece mais: título grande que encolhe de um lado,
 /// barra presa no topo do outro.
-class AppScreen extends StatelessWidget {
-  const AppScreen({super.key, required this.title, required this.blocks});
+/// Onde cada tela parou de rolar.
+///
+/// Sair de um app destrói a rota e o estado dela junto, então a posição
+/// precisa morar fora da árvore para quem volta encontrar a mesma página em
+/// vez do topo. Dura a sessão: recarregar começa do começo, como num celular
+/// que foi desligado.
+abstract final class ScrollMemory {
+  static final Map<String, double> _offsets = {};
+
+  static double offsetOf(String key) => _offsets[key] ?? 0;
+
+  static void remember(String key, double offset) => _offsets[key] = offset;
+
+  @visibleForTesting
+  static void forget() => _offsets.clear();
+}
+
+class AppScreen extends StatefulWidget {
+  const AppScreen({
+    super.key,
+    required this.title,
+    this.blocks = const [],
+    this.children = const [],
+    this.sidePadding = 24,
+  });
 
   final String title;
   final List<ContentBlock> blocks;
+
+  /// Conteúdo que não é texto corrido — a lista de Ajustes, por exemplo.
+  final List<Widget> children;
+
+  /// Texto corrido pede respiro nas laterais; lista de ajustes vai de borda a
+  /// borda, e cada pele decide o próprio recuo.
+  final double sidePadding;
+
+  @override
+  State<AppScreen> createState() => _AppScreenState();
+}
+
+class _AppScreenState extends State<AppScreen> {
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: ScrollMemory.offsetOf(widget.title),
+  )..addListener(_remember);
+
+  void _remember() {
+    if (_scroll.hasClients) {
+      ScrollMemory.remember(widget.title, _scroll.offset);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll
+      ..removeListener(_remember)
+      ..dispose();
+    super.dispose();
+  }
 
   /// Altura da faixa de gesto da base, para o texto não terminar embaixo dela.
   static const double _bottomGesture = 44;
@@ -38,29 +91,31 @@ class AppScreen extends StatelessWidget {
         top: false,
         bottom: false,
         child: CustomScrollView(
+          controller: _scroll,
           slivers: [
             spec.screenHeader(
-              title: title,
+              title: widget.title,
               onBack: () => _close(context),
               background: tokens.background,
               foreground: tokens.onWallpaper,
             ),
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                24,
+                widget.sidePadding,
                 8,
-                24,
+                widget.sidePadding,
                 _bottomGesture + MediaQuery.paddingOf(context).bottom,
               ),
               sliver: SliverList.list(
                 children: [
-                  for (final block in blocks)
+                  for (final block in widget.blocks)
                     _Block(
                       block: block,
                       tokens: tokens,
                       spec: spec,
                       scale: scale,
                     ),
+                  ...widget.children,
                 ],
               ),
             ),

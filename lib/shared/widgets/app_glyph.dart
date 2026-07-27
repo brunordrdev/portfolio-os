@@ -114,6 +114,9 @@ abstract final class AppGlyphs {
     '<path d="M20 12H4"/><path d="M10.5 5.5L4 12l6.5 6.5"/>',
   );
 
+  /// Marca de conferido, da lista de ajustes do iOS.
+  static final String check = _drawn('<path d="M4.5 12.5l5 5 10-11"/>');
+
   /// Seta do convite para destravar.
   static final String arrowUp = _drawn(
     '<path d="M12 19.5V5"/><path d="M6.5 10.5L12 5l5.5 5.5"/>',

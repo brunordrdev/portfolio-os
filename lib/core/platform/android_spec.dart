@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/tokens.dart';
 import '../../shared/widgets/app_glyph.dart';
 import 'platform_spec.dart';
 
@@ -113,6 +114,87 @@ class AndroidSpec extends PlatformSpec {
           child: AppGlyph(AppGlyphs.arrowLeft),
         ),
       ),
+    );
+  }
+
+  // Cabeçalho no acento, linhas de borda a borda e divisores do Material.
+  @override
+  Widget settingsSection({required String header, required List<Widget> rows}) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 28, 16, 10),
+              child: Text(
+                header,
+                style: TextStyle(
+                  // O acento reprovaria sobre o fundo claro: 4,10:1, abaixo
+                  // do piso de 4,5. O apagado é o tom de subcabeçalho do
+                  // Material e passa nos dois temas.
+                  color: tokens.onWallpaperMuted,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamilyFallback: fontFallback,
+                ),
+              ),
+            ),
+            for (var i = 0; i < rows.length; i++) ...[
+              if (i > 0)
+                Divider(height: 1, thickness: 1, color: tokens.surfaceBorder),
+              rows[i],
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget settingsOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return tappable(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 16, 4),
+            child: Row(
+              children: [
+                RadioGroup<bool>(
+                  groupValue: selected,
+                  onChanged: (_) => onTap(),
+                  child: Radio<bool>(
+                    value: true,
+                    fillColor: WidgetStatePropertyAll(
+                      selected ? tokens.accent : tokens.onWallpaperMuted,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: tokens.onWallpaper,
+                        fontSize: 16,
+                        fontFamilyFallback: fontFallback,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

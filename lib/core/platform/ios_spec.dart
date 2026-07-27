@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../theme/tokens.dart';
 import '../../shared/widgets/app_glyph.dart';
 import 'platform_spec.dart';
 
@@ -103,6 +104,97 @@ class IOSSpec extends PlatformSpec {
     );
   }
 
+  // Cartão embutido, com o título fora dele em maiúsculas pequenas e os
+  // separadores recuados até onde o texto começa.
+  @override
+  Widget settingsSection({required String header, required List<Widget> rows}) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 26, 16, 7),
+              child: Text(
+                header.toUpperCase(),
+                style: TextStyle(
+                  color: tokens.onWallpaperMuted,
+                  fontSize: 12.5,
+                  letterSpacing: 0.6,
+                  fontFamilyFallback: fontFallback,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: tokens.surface,
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(color: tokens.surfaceBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < rows.length; i++) ...[
+                      if (i > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: ColoredBox(
+                            color: tokens.surfaceBorder,
+                            child: const SizedBox(
+                              height: 0.7,
+                              width: double.infinity,
+                            ),
+                          ),
+                        ),
+                      rows[i],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget settingsOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return tappable(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 13, 14, 13),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: tokens.onWallpaper,
+                      fontSize: 16,
+                      fontFamilyFallback: fontFallback,
+                    ),
+                  ),
+                ),
+                if (selected) _CheckMark(color: tokens.accent),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Route<T> pageRoute<T>({
     required WidgetBuilder builder,
@@ -152,6 +244,22 @@ class _PressFadeState extends State<_PressFade> {
           child: widget.child,
         ),
       ),
+    );
+  }
+}
+
+/// A marca de conferido do iOS: uma escolha feita não muda a linha de lugar,
+/// só acrescenta o sinal à direita.
+class _CheckMark extends StatelessWidget {
+  const _CheckMark({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconTheme(
+      data: IconThemeData(color: color, size: 20),
+      child: AppGlyph(AppGlyphs.check),
     );
   }
 }

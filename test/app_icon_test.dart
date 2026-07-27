@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
+import 'package:portfolio_os/core/settings/settings.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
 import 'package:portfolio_os/shared/motion/app_open_page.dart';
@@ -19,19 +20,22 @@ Widget _harness(
   AppTokens tokens,
   void Function(AppOrigin) onTap,
 ) {
-  return PlatformScope(
-    controller: controller,
-    child: TokensScope(
-      tokens: tokens,
-      child: MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: AppIcon(
-              label: 'Projetos',
-              glyph: const Icon(Icons.circle),
-              hue: tokens.glyphs.first,
-              onTap: onTap,
-              badge: 1,
+  return SettingsScope(
+    controller: SettingsController(),
+    child: PlatformScope(
+      controller: controller,
+      child: TokensScope(
+        tokens: tokens,
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: AppIcon(
+                label: 'Projetos',
+                glyph: const Icon(Icons.circle),
+                hue: tokens.glyphs.first,
+                onTap: onTap,
+                badge: 1,
+              ),
             ),
           ),
         ),
@@ -118,18 +122,21 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      PlatformScope(
-        controller: controller,
-        child: TokensScope(
-          tokens: AppTokens.dark,
-          child: MaterialApp(
-            home: Scaffold(
-              body: Center(
-                child: AppIcon(
-                  label: 'Sobre',
-                  glyph: const Icon(Icons.circle),
-                  hue: AppTokens.dark.glyphs.first,
-                  onTap: (_) => taps++,
+      SettingsScope(
+        controller: SettingsController(),
+        child: PlatformScope(
+          controller: controller,
+          child: TokensScope(
+            tokens: AppTokens.dark,
+            child: MaterialApp(
+              home: Scaffold(
+                body: Center(
+                  child: AppIcon(
+                    label: 'Sobre',
+                    glyph: const Icon(Icons.circle),
+                    hue: AppTokens.dark.glyphs.first,
+                    onTap: (_) => taps++,
+                  ),
                 ),
               ),
             ),
