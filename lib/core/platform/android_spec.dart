@@ -51,8 +51,24 @@ class AndroidSpec extends PlatformSpec {
   @override
   FontWeight get appLabelWeight => FontWeight.w500;
 
+  // A pílula da navegação por gestos do Android: mais estreita que a do iOS
+  // e mais grossa, com as pontas em semicírculo.
   @override
-  bool get hasHomeIndicator => false;
+  Widget bottomChrome() {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return Container(
+          width: 108,
+          height: 4,
+          decoration: BoxDecoration(
+            color: tokens.onWallpaperMuted,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   double get systemChromeHeight => 26;
@@ -260,6 +276,21 @@ class AndroidSpec extends PlatformSpec {
           ),
         );
       },
+    );
+  }
+
+  // Voltar preditivo do Material 3: enquanto o dedo anda, a página encolhe
+  // até 90% em torno do próprio centro, arredonda até o canto do sistema e
+  // escorrega para longe da borda que está sendo arrastada — descobrindo o
+  // que está atrás dela antes de o gesto terminar. É o que diz ao visitante
+  // para onde ele está indo enquanto ainda dá tempo de desistir.
+  @override
+  BackDrag? backDrag({required double progress, required ScreenEdge edge}) {
+    final travelled = (1 - progress).clamp(0.0, 1.0);
+    return BackDrag(
+      scale: 1 - 0.10 * travelled,
+      cornerRadius: surfaceRadius * travelled,
+      offset: Offset((edge == ScreenEdge.left ? 16 : -16) * travelled, 0),
     );
   }
 

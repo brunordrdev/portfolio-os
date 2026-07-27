@@ -94,6 +94,15 @@ class AppOpenRoute<T> extends PageRoute<T> {
 
   CurvedAnimation? _eased;
 
+  /// De qual borda o dedo veio, e se o fechamento nasceu de um arrasto.
+  ///
+  /// A segunda pergunta existe porque a transformação preditiva não pode
+  /// parar quando o dedo levanta: ela precisa terminar o movimento que
+  /// começou, ou a página saltaria de encolhida para o outro movimento no
+  /// meio do caminho.
+  ScreenEdge _dragEdge = ScreenEdge.left;
+  bool _predictive = false;
+
   @override
   Widget buildPage(
     BuildContext context,
@@ -128,6 +137,39 @@ class AppOpenRoute<T> extends PageRoute<T> {
     // no meio faria a tela andar diferente da mão.
     final dragging = navigator?.userGestureInProgress ?? false;
 
+    // O movimento preditivo dura da primeira mexida até a animação assentar,
+    // e não até o dedo levantar.
+    if (_predictive && !dragging && animation.isCompleted) _predictive = false;
+
+    if (_predictive) {
+      // `buildTransitions` roda quando o estado da rota muda, e não a cada
+      // quadro: quem precisa acompanhar o dedo é o widget devolvido. Sem
+      // este AnimatedBuilder a transformação seria calculada uma vez, com a
+      // página ainda aberta, e nada se moveria.
+      final spec = _page.spec;
+      return AnimatedBuilder(
+        animation: animation,
+        child: child,
+        builder: (context, content) {
+          final drag = spec.backDrag(
+            progress: animation.value,
+            edge: _dragEdge,
+          );
+          if (drag == null) return content!;
+          return Transform.translate(
+            offset: drag.offset,
+            child: Transform.scale(
+              scale: drag.scale,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(drag.cornerRadius),
+                child: content,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return _ContainerTransform(
       progress: dragging ? animation : _eased!,
       origin: origin,
@@ -154,10 +196,17 @@ class AppOpenRoute<T> extends PageRoute<T> {
   }
 
   /// Começa um voltar interativo, ou devolve nulo se não é hora.
-  BackGesture? startBackGesture() {
+  BackGesture? startBackGesture(ScreenEdge edge) {
     final nav = navigator;
     if (nav == null || controller == null) return null;
     if (isFirst || !isCurrent || nav.userGestureInProgress) return null;
+    // `setState` aqui não é adorno: é o que agenda uma nova chamada a
+    // `buildTransitions`. Sem ela a rota continuaria mostrando a transição
+    // que montou antes de o dedo encostar.
+    setState(() {
+      _dragEdge = edge;
+      _predictive = _page.spec.backDrag(progress: 1, edge: edge) != null;
+    });
     return BackGesture(
       controller: controller!,
       navigator: nav,
@@ -322,7 +371,8 @@ class _BackEdgeState extends State<_BackEdge> {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onHorizontalDragStart: (_) => _gesture = widget.route.startBackGesture(),
+      onHorizontalDragStart: (_) =>
+          _gesture = widget.route.startBackGesture(widget.edge),
       onHorizontalDragUpdate: (details) {
         _gesture?.dragUpdate((details.primaryDelta ?? 0) * _direction / width);
       },

@@ -47,8 +47,23 @@ class IOSSpec extends PlatformSpec {
   @override
   FontWeight get appLabelWeight => FontWeight.w400;
 
+  // A barra de gesto do iOS: larga, fina e clara.
   @override
-  bool get hasHomeIndicator => true;
+  Widget bottomChrome() {
+    return Builder(
+      builder: (context) {
+        final tokens = context.tokens;
+        return Container(
+          width: 134,
+          height: 5,
+          decoration: BoxDecoration(
+            color: tokens.onWallpaperMuted,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   double get systemChromeHeight => 22;
@@ -194,6 +209,12 @@ class IOSSpec extends PlatformSpec {
       },
     );
   }
+
+  // O iOS não transforma a página que sai por conta própria: ela continua
+  // encolhendo de volta para o ladrilho que a abriu, acompanhando o dedo.
+  @override
+  BackDrag? backDrag({required double progress, required ScreenEdge edge}) =>
+      null;
 
   @override
   Route<T> pageRoute<T>({

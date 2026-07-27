@@ -205,6 +205,63 @@ void main() {
           },
         );
 
+        // Voltar preditivo: enquanto o dedo anda, o Material encolhe a página
+        // que sai em torno do próprio centro, para o visitante ver o que há
+        // atrás antes de soltar. O iOS encolhe também, mas na direção do
+        // ladrilho que abriu o app — que fica no alto, à direita.
+        //
+        // A diferença é medida onde ela existe: no retângulo que a página
+        // ocupa na tela, e não na árvore de widgets.
+        testWidgets('só o Material tem transformação preditiva própria', (
+          tester,
+        ) async {
+          expect(
+            spec.backDrag(progress: 0.8, edge: ScreenEdge.left),
+            skin.key == 'iOS' ? isNull : isNotNull,
+          );
+        });
+
+        testWidgets('a página que sai se transforma como a pele manda', (
+          tester,
+        ) async {
+          await openApp(tester);
+          final full = tester.getRect(find.byType(AboutScreen));
+
+          final gesture = await tester.startGesture(const Offset(6, 400));
+          for (var i = 0; i < 6; i++) {
+            await gesture.moveBy(const Offset(14, 0));
+            await tester.pump();
+          }
+
+          final dragged = tester.getRect(find.byType(AboutScreen));
+
+          // Escrito à mão, e não perguntado à spec: um teste que consulta a
+          // implementação para saber o que esperar concorda com qualquer
+          // resposta que ela dê, inclusive a errada.
+          if (skin.key == 'iOS') {
+            // iOS: a página não se mexe. Quem encolhe e anda na direção do
+            // ladrilho é o recorte; o conteúdo fica ancorado onde está, que
+            // é o que impede o texto de se reorganizar a cada quadro.
+            expect(
+              dragged,
+              full,
+              reason: 'no iOS quem transforma é o recorte, não a página',
+            );
+          } else {
+            // Material: a página em si encolhe, em torno do próprio centro.
+            expect(dragged.width, lessThan(full.width));
+            expect(
+              (dragged.center - full.center).distance,
+              lessThan(24),
+              reason: 'o encolhimento do M3 é no lugar, não em direção a algo',
+            );
+          }
+
+          await gesture.up();
+          await tester.pumpAndSettle();
+          expect(find.byType(AboutScreen), findsOneWidget);
+        });
+
         testWidgets('arrastar para cima na base volta para a tela inicial', (
           tester,
         ) async {

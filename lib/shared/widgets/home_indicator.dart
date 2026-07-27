@@ -1,26 +1,15 @@
 import 'package:flutter/widgets.dart';
 
 import '../../core/platform/platform_scope.dart';
-import '../../core/theme/tokens.dart';
 
-/// A barra de gesto da base. Só existe onde a plataforma a desenha — quem
-/// decide é a pele, não a tela.
+/// A peça que a plataforma desenha na base da tela.
+///
+/// Não decide nada: pergunta à pele ativa e desenha o que ela devolver. É a
+/// barra de gesto do iOS de um lado, a pílula da navegação por gestos do
+/// Android do outro.
 class HomeIndicator extends StatelessWidget {
   const HomeIndicator({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final spec = context.platform;
-    if (!spec.hasHomeIndicator) return const SizedBox.shrink();
-
-    final tokens = context.tokens;
-    return Container(
-      width: 134,
-      height: 5,
-      decoration: BoxDecoration(
-        color: tokens.onWallpaperMuted,
-        borderRadius: BorderRadius.circular(3),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => context.platform.bottomChrome();
 }

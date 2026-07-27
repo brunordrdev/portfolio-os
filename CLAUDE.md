@@ -105,6 +105,14 @@ texto indexável na moldura web.
 pastas, espanhol, gaveta de apps, central de notificações, widgets, múltiplas
 páginas, backend na casca.
 
+**Estacionado — ícones da barra de status em Material Symbols.** Wifi e
+bateria são desenhados pelo conjunto traçado próprio nas duas peles. Trocá-los
+pelos do Material no Android daria pouca fidelidade e traria dependência de
+fonte de ícone justo depois de a fonte de texto ter sido recortada para caber
+no orçamento. O caminho barato, no dia em que valer: desenhar as versões
+Android no próprio conjunto — mesmo `viewBox`, mesmo traço — e escolher entre
+elas por um membro da costura. Sem dependência nova.
+
 **Estacionado com gatilho:** o service worker é o do Flutter, e o próprio
 Flutter avisa no build que ele está **depreciado e sai numa versão futura**.
 Quando sair, o PWA deixa de ser instalável no Chrome sem que nada quebre em

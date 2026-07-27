@@ -3,6 +3,29 @@ import 'package:flutter/widgets.dart';
 /// Uma borda lateral da tela.
 enum ScreenEdge { left, right }
 
+/// Como a página que sai se transforma enquanto o dedo arrasta de volta.
+///
+/// É descrição, não desenho: a costura diz o quanto encolher, arredondar e
+/// deslocar, e a rota de movimento aplica. Assim a pele não precisa saber que
+/// existe uma rota, e a rota não precisa saber em que plataforma está.
+@immutable
+class BackDrag {
+  const BackDrag({
+    required this.scale,
+    required this.cornerRadius,
+    required this.offset,
+  });
+
+  /// 1 é do tamanho da tela; menor encolhe em torno do centro.
+  final double scale;
+
+  /// Quanto os cantos arredondam enquanto ela encolhe.
+  final double cornerRadius;
+
+  /// Para onde ela escorrega — no Material, para longe da borda arrastada.
+  final Offset offset;
+}
+
 /// Contrato único do que muda entre um sistema e outro.
 ///
 /// Nenhuma tela deste projeto pergunta em qual plataforma está rodando: ela
@@ -57,8 +80,13 @@ abstract class PlatformSpec {
 
   // --- Moldura do sistema -------------------------------------------------
 
-  /// Se a plataforma desenha a barra de gesto na base.
-  bool get hasHomeIndicator;
+  /// O cromo da base: a peça que a plataforma desenha embaixo de tudo.
+  ///
+  /// Era um booleano, e o booleano mentia: "tem indicador de home" só faz
+  /// pergunta sobre o iOS, e a resposta do Android era não por falta de
+  /// vocabulário, não por não ter nada ali. As duas plataformas desenham
+  /// alguma coisa na base; o que muda é a forma.
+  Widget bottomChrome();
 
   /// Altura da barra de status no topo.
   double get systemChromeHeight;
@@ -117,6 +145,16 @@ abstract class PlatformSpec {
     required bool selected,
     required VoidCallback onTap,
   });
+
+  /// Como a página que sai se transforma durante o arrasto de voltar.
+  ///
+  /// `progress` é 1 com o app aberto e 0 com ele fechado.
+  ///
+  /// Devolver nulo significa "sem transformação própria": a página segue
+  /// encolhendo de volta para o ladrilho que a abriu, que é o movimento que o
+  /// projeto já tinha. O Material 3 tem resposta própria — a página encolhe
+  /// no lugar, arredonda e escorrega — e é ela que este membro descreve.
+  BackDrag? backDrag({required double progress, required ScreenEdge edge});
 
   /// Rota de página com a transição da plataforma.
   Route<T> pageRoute<T>({
