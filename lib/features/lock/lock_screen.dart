@@ -21,6 +21,20 @@ const List<String> _serif = ['Georgia', 'Times New Roman', 'Times', 'serif'];
 /// Destrava por três caminhos: arrastar para cima, tocar em qualquer lugar e
 /// teclado. O arrasto é o gesto da casa, mas no desktop muita gente não tenta
 /// arrastar — e teclado não é conveniência, é acessibilidade.
+///
+/// **Os números daqui não são vazamento de plataforma.** Corpo, vão e
+/// composição estão escritos nesta tela de propósito: ela é a capa do
+/// projeto, e é uma só nas duas peles.
+///
+/// O motivo é a versão HTML. Ela existe para aparecer no primeiro byte,
+/// antes de qualquer JavaScript, e por isso não tem como saber em que
+/// plataforma está — a detecção mora no Dart, que ainda não montou. Dar pele
+/// específica ao bloqueio criaria um salto visível no instante em que o
+/// Flutter cobrisse a versão estática: o visitante veria a capa mudar de
+/// forma sozinha. Uma capa só é o que mantém as duas metades iguais.
+///
+/// Se um dia o bloqueio deixar de ter versão estática, isto vira suspeito de
+/// novo.
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});
 

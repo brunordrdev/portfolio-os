@@ -3,6 +3,33 @@ import 'package:flutter/widgets.dart';
 /// Uma borda lateral da tela.
 enum ScreenEdge { left, right }
 
+/// As medidas da barra de status.
+///
+/// Juntas pelo mesmo motivo da grade: corpo, peso, calha e ícone formam uma
+/// barra, e barra se ajusta inteira. A altura já era membro; o que ia dentro
+/// dela é que continuava chumbado.
+@immutable
+class StatusBarMetrics {
+  const StatusBarMetrics({
+    required this.textSize,
+    required this.textWeight,
+    required this.gutter,
+    required this.iconSize,
+    required this.iconGap,
+  });
+
+  final double textSize;
+  final FontWeight textWeight;
+
+  /// Da borda da tela até a hora, e até o último ícone do outro lado.
+  final double gutter;
+
+  final double iconSize;
+
+  /// Entre um ícone de sistema e o seguinte.
+  final double iconGap;
+}
+
 /// Identidade do selo na árvore.
 ///
 /// O selo muda de forma entre as peles — cápsula com número de um lado,
@@ -167,6 +194,16 @@ abstract class PlatformSpec {
     required bool value,
     required ValueChanged<bool> onChanged,
   });
+
+  /// O que vai dentro da barra de status.
+  StatusBarMetrics get statusBar;
+
+  /// Uma linha de lista de ajustes, com a métrica da plataforma.
+  ///
+  /// O Material pede 56 de altura mínima; o iOS não pede altura, pede
+  /// respiro. A linha de ficha de "Sobre este sistema" montava a própria
+  /// margem e por isso não obedecia a nenhum dos dois.
+  Widget settingsRow({required Widget child});
 
   /// Como esta plataforma marca um app que tem novidade.
   ///

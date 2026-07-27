@@ -81,8 +81,7 @@ class _Fact extends StatelessWidget {
     final spec = context.platform;
     final url = fact.url;
 
-    final body = Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+    final body = spec.settingsRow(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

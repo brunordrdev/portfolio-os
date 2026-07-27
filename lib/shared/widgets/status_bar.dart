@@ -20,7 +20,7 @@ class StatusBar extends StatelessWidget {
     return SizedBox(
       height: spec.systemChromeHeight,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        padding: EdgeInsets.symmetric(horizontal: spec.statusBar.gutter),
         child: Row(
           children: [
             MinuteClock(
@@ -28,8 +28,8 @@ class StatusBar extends StatelessWidget {
                 clockText(now),
                 style: TextStyle(
                   color: tokens.onWallpaper,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontSize: spec.statusBar.textSize,
+                  fontWeight: spec.statusBar.textWeight,
                   fontFamilyFallback: spec.fontFallback,
                   height: 1,
                 ),
@@ -37,11 +37,14 @@ class StatusBar extends StatelessWidget {
             ),
             const Spacer(),
             IconTheme(
-              data: IconThemeData(color: tokens.onWallpaper, size: 14),
+              data: IconThemeData(
+                color: tokens.onWallpaper,
+                size: spec.statusBar.iconSize,
+              ),
               child: Row(
                 children: [
                   AppGlyph(AppGlyphs.wifi),
-                  const SizedBox(width: 6),
+                  SizedBox(width: spec.statusBar.iconGap),
                   AppGlyph(AppGlyphs.battery),
                 ],
               ),

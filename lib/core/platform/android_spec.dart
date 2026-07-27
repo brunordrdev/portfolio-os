@@ -85,6 +85,27 @@ class AndroidSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 32;
 
+  // Hora maior e em peso normal, ícones um pouco maiores: a barra do
+  // Android é mais legível e menos discreta.
+  @override
+  StatusBarMetrics get statusBar => const StatusBarMetrics(
+    textSize: 14,
+    textWeight: FontWeight.w400,
+    gutter: 16,
+    iconSize: 16,
+    iconGap: 8,
+  );
+
+  // Linha de lista do M3: 56 de altura mínima, com o respiro por fora.
+  @override
+  Widget settingsRow({required Widget child}) => ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: 56),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: child,
+    ),
+  );
+
   // Ponto, sem número: o launcher do Android avisa que há novidade e não
   // diz quantas. A contagem fica dentro do app, que é onde ela cabe.
   @override

@@ -81,6 +81,22 @@ class IOSSpec extends PlatformSpec {
   @override
   double get systemChromeHeight => 54;
 
+  // Hora em corpo pequeno e peso semibold, ícones miúdos: a barra do iOS é
+  // discreta e alta.
+  @override
+  StatusBarMetrics get statusBar => const StatusBarMetrics(
+    textSize: 12,
+    textWeight: FontWeight.w600,
+    gutter: 18,
+    iconSize: 14,
+    iconGap: 6,
+  );
+
+  // Sem altura mínima: a linha do iOS respira por dentro, não por fora.
+  @override
+  Widget settingsRow({required Widget child}) =>
+      Padding(padding: const EdgeInsets.fromLTRB(16, 14, 16, 14), child: child);
+
   // Cápsula com o número: o iOS diz quantas novidades há.
   @override
   Widget appBadge({required int count, required double tileSize}) {
