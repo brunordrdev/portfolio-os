@@ -1,22 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../core/theme/tokens.dart';
+import '../../content/app_content.dart';
+import '../../shared/widgets/app_screen.dart';
 
-/// Andaime de Sobre. Só existe para a rota ter destino nesta etapa.
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    return Scaffold(
-      backgroundColor: tokens.background,
-      body: Center(
-        child: Text(
-          'Sobre',
-          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
-        ),
-      ),
-    );
+    final content = context.content;
+    return AppScreen(title: content.apps.about, blocks: content.about);
   }
 }

@@ -208,11 +208,8 @@ class _ContainerTransform extends StatelessWidget {
             final rect = Rect.lerp(origin.rect, screen, t)!;
             final corner = lerpDouble(cornerRadius, 0, t)!;
             final fill = Color.lerp(origin.color, background, t)!;
-            final opacity =
-                ((t - _contentEntersAt) / (1 - _contentEntersAt)).clamp(
-                  0.0,
-                  1.0,
-                );
+            final opacity = ((t - _contentEntersAt) / (1 - _contentEntersAt))
+                .clamp(0.0, 1.0);
 
             return Stack(
               children: [
@@ -405,9 +402,7 @@ class BackGesture {
 
   void dragEnd(double velocity) {
     // Com velocidade, o arremesso decide; sem ela, decide onde parou.
-    final closing = velocity.abs() >= 1
-        ? velocity > 0
-        : controller.value < 0.5;
+    final closing = velocity.abs() >= 1 ? velocity > 0 : controller.value < 0.5;
 
     if (closing) {
       navigator.pop();

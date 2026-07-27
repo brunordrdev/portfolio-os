@@ -83,6 +83,19 @@ abstract class PlatformSpec {
     required ValueChanged<bool> onChanged,
   });
 
+  /// Cabeçalho de uma tela de app, como sliver.
+  ///
+  /// É a diferença de plataforma mais visível do sistema: no iOS um título
+  /// grande que encolhe ao rolar e um chevron de voltar; no Android a barra
+  /// superior do Material, com o título alinhado à esquerda. As cores vêm de
+  /// fora porque quem conhece os tokens é a tela, não a pele.
+  Widget screenHeader({
+    required String title,
+    required VoidCallback onBack,
+    required Color background,
+    required Color foreground,
+  });
+
   /// Rota de página com a transição da plataforma.
   Route<T> pageRoute<T>({
     required WidgetBuilder builder,

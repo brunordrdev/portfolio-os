@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../content/app_content.dart';
 import '../../core/platform/platform_scope.dart';
 import '../../core/theme/tokens.dart';
 import '../../shared/widgets/app_glyph.dart';
@@ -12,38 +13,8 @@ import '../../shared/widgets/minute_clock.dart';
 import '../../shared/widgets/status_bar.dart';
 import '../../shared/widgets/wallpaper.dart';
 
-/// Nomes em português, sem depender de dados de locale. Quando Ajustes
-/// ganhar PT/EN, esta lista vira a versão portuguesa de uma tabela.
-const List<String> _weekdays = [
-  'segunda-feira',
-  'terça-feira',
-  'quarta-feira',
-  'quinta-feira',
-  'sexta-feira',
-  'sábado',
-  'domingo',
-];
-
-const List<String> _months = [
-  'janeiro',
-  'fevereiro',
-  'março',
-  'abril',
-  'maio',
-  'junho',
-  'julho',
-  'agosto',
-  'setembro',
-  'outubro',
-  'novembro',
-  'dezembro',
-];
-
 /// Pilha serifada do sistema. Sem fonte nova para baixar.
 const List<String> _serif = ['Georgia', 'Times New Roman', 'Times', 'serif'];
-
-String _dateLine(DateTime date) =>
-    '${_weekdays[date.weekday - 1]}, ${date.day} de ${_months[date.month - 1]}';
 
 /// A tela de bloqueio.
 ///
@@ -94,6 +65,7 @@ class _LockScreenState extends State<LockScreen> {
   Widget build(BuildContext context) {
     final spec = context.platform;
     final tokens = context.tokens;
+    final text = context.content.lock;
     final now = clock.now();
 
     // O Scaffold existe pelo Material que ele traz: sem um Material acima,
@@ -136,7 +108,7 @@ class _LockScreenState extends State<LockScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${_dateLine(now)} · Aracaju',
+                  text.dateLine(now),
                   style: TextStyle(
                     color: tokens.onWallpaperMuted,
                     fontSize: 13,
@@ -156,7 +128,7 @@ class _LockScreenState extends State<LockScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'me chamo Bruno',
+                  text.name,
                   style: TextStyle(
                     color: tokens.onWallpaper,
                     fontSize: 15,
@@ -166,7 +138,7 @@ class _LockScreenState extends State<LockScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'desenvolvedor mobile',
+                  text.role,
                   style: TextStyle(
                     color: tokens.onWallpaperMuted,
                     fontSize: 12,
@@ -175,15 +147,12 @@ class _LockScreenState extends State<LockScreen> {
                 ),
                 const Spacer(),
                 IconTheme(
-                  data: IconThemeData(
-                    color: tokens.onWallpaperMuted,
-                    size: 20,
-                  ),
+                  data: IconThemeData(color: tokens.onWallpaperMuted, size: 20),
                   child: AppGlyph(AppGlyphs.arrowUp),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'arraste para cima',
+                  text.hint,
                   style: TextStyle(
                     color: tokens.onWallpaperMuted,
                     fontSize: 12,

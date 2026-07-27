@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../shared/widgets/app_glyph.dart';
 import 'platform_spec.dart';
 
 /// A pele iOS: cantos de esquadro contínuo, curvas cúbicas e toque sem
@@ -14,8 +15,7 @@ class IOSSpec extends PlatformSpec {
   String get label => 'iOS';
 
   @override
-  BorderRadius iconRadius(double size) =>
-      BorderRadius.circular(size * 0.225);
+  BorderRadius iconRadius(double size) => BorderRadius.circular(size * 0.225);
 
   @override
   double get surfaceRadius => 26;
@@ -34,11 +34,11 @@ class IOSSpec extends PlatformSpec {
 
   @override
   List<String> get fontFallback => const [
-        '-apple-system',
-        'BlinkMacSystemFont',
-        'SF Pro Text',
-        'Helvetica Neue',
-      ];
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'SF Pro Text',
+    'Helvetica Neue',
+  ];
 
   @override
   double get appLabelSize => 11;
@@ -73,6 +73,34 @@ class IOSSpec extends PlatformSpec {
     required ValueChanged<bool> onChanged,
   }) {
     return CupertinoSwitch(value: value, onChanged: onChanged);
+  }
+
+  // Título grande que encolhe ao rolar e vira título de barra. É o gesto
+  // tipográfico mais reconhecível do iOS.
+  @override
+  Widget screenHeader({
+    required String title,
+    required VoidCallback onBack,
+    required Color background,
+    required Color foreground,
+  }) {
+    return CupertinoSliverNavigationBar(
+      largeTitle: Text(title, style: TextStyle(color: foreground)),
+      middle: Text(title, style: TextStyle(color: foreground, fontSize: 17)),
+      backgroundColor: background,
+      border: null,
+      automaticallyImplyLeading: false,
+      leading: _PressFade(
+        onTap: onBack,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: IconTheme(
+            data: IconThemeData(color: foreground, size: 26),
+            child: AppGlyph(AppGlyphs.chevronLeft),
+          ),
+        ),
+      ),
+    );
   }
 
   @override

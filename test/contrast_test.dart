@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
@@ -104,11 +105,14 @@ void main() {
             await tester.pumpWidget(
               PlatformScope(
                 controller: controller,
-                child: TokensScope(
-                  tokens: tokens,
-                  child: MaterialApp.router(
-                    routerConfig: router,
-                    debugShowCheckedModeBanner: false,
+                child: ContentScope(
+                  content: AppContent.pt,
+                  child: TokensScope(
+                    tokens: tokens,
+                    child: MaterialApp.router(
+                      routerConfig: router,
+                      debugShowCheckedModeBanner: false,
+                    ),
                   ),
                 ),
               ),
@@ -154,9 +158,12 @@ void main() {
           // Repinta só o papel de parede para ler a cor de trás de cada um.
           await tester.pumpWidget(
             RepaintBoundary(
-              child: TokensScope(
-                tokens: tokens,
-                child: const Wallpaper(child: SizedBox.expand()),
+              child: ContentScope(
+                content: AppContent.pt,
+                child: TokensScope(
+                  tokens: tokens,
+                  child: const Wallpaper(child: SizedBox.expand()),
+                ),
               ),
             ),
           );
@@ -220,11 +227,14 @@ void main() {
         await tester.pumpWidget(
           PlatformScope(
             controller: controller,
-            child: TokensScope(
-              tokens: tokens,
-              child: MaterialApp.router(
-                routerConfig: router,
-                debugShowCheckedModeBanner: false,
+            child: ContentScope(
+              content: AppContent.pt,
+              child: TokensScope(
+                tokens: tokens,
+                child: MaterialApp.router(
+                  routerConfig: router,
+                  debugShowCheckedModeBanner: false,
+                ),
               ),
             ),
           ),
@@ -240,10 +250,6 @@ void main() {
           Routes.experience,
           Routes.resume,
           Routes.settings,
-          Routes.phone,
-          Routes.email,
-          Routes.linkedin,
-          Routes.github,
         ]) {
           router.go(route);
           await tester.pumpAndSettle();
@@ -297,6 +303,8 @@ void main() {
   }
 }
 
-String _hex(int r, int g, int b) => [r, g, b]
-    .map((c) => c.toRadixString(16).padLeft(2, '0').toUpperCase())
-    .join();
+String _hex(int r, int g, int b) => [
+  r,
+  g,
+  b,
+].map((c) => c.toRadixString(16).padLeft(2, '0').toUpperCase()).join();

@@ -1,22 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../core/theme/tokens.dart';
+import '../../content/app_content.dart';
+import '../../shared/widgets/app_screen.dart';
 
-/// Andaime de Experiência. Só existe para a rota ter destino nesta etapa.
 class ExperienceScreen extends StatelessWidget {
   const ExperienceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    return Scaffold(
-      backgroundColor: tokens.background,
-      body: Center(
-        child: Text(
-          'Experiência',
-          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
-        ),
-      ),
+    final content = context.content;
+    return AppScreen(
+      title: content.apps.experience,
+      blocks: content.experience,
     );
   }
 }

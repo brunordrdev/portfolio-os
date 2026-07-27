@@ -13,7 +13,7 @@ import 'platform_spec.dart';
 class PlatformController extends ChangeNotifier {
   /// Sem argumento, a plataforma é detectada a partir do aparelho do visitante.
   PlatformController([PlatformSpec? initial])
-      : _spec = initial ?? _detectFromHost();
+    : _spec = initial ?? _detectFromHost();
 
   /// As duas peles do sistema. Como não guardam estado, uma instância const
   /// de cada basta para o programa inteiro.

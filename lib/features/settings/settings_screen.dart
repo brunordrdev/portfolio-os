@@ -1,22 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../core/theme/tokens.dart';
+import '../../content/app_content.dart';
+import '../../shared/widgets/app_screen.dart';
 
-/// Andaime de Ajustes. Só existe para a rota ter destino nesta etapa.
+/// Andaime: já tem o cabeçalho da plataforma, ainda não tem conteúdo.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    return Scaffold(
-      backgroundColor: tokens.background,
-      body: Center(
-        child: Text(
-          'Ajustes',
-          style: TextStyle(color: tokens.onWallpaper, fontSize: 20),
-        ),
-      ),
-    );
+    return AppScreen(title: context.content.apps.settings, blocks: const []);
   }
 }

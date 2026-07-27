@@ -104,6 +104,16 @@ abstract final class AppGlyphs {
     '<path d="M21.5 11v2"/>',
   );
 
+  /// Voltar, no feitio do iOS: só a cabeça da seta.
+  static final String chevronLeft = _drawn(
+    '<path d="M15 5.5L8.5 12l6.5 6.5"/>',
+  );
+
+  /// Voltar, no feitio do Material: seta com haste.
+  static final String arrowLeft = _drawn(
+    '<path d="M20 12H4"/><path d="M10.5 5.5L4 12l6.5 6.5"/>',
+  );
+
   /// Seta do convite para destravar.
   static final String arrowUp = _drawn(
     '<path d="M12 19.5V5"/><path d="M6.5 10.5L12 5l5.5 5.5"/>',
@@ -126,8 +136,9 @@ class AppGlyph extends StatelessWidget {
       svg,
       width: side,
       height: side,
-      colorFilter:
-          color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+      colorFilter: color == null
+          ? null
+          : ColorFilter.mode(color, BlendMode.srcIn),
     );
   }
 }

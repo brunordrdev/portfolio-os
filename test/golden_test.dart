@@ -5,7 +5,9 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
+import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
 import 'package:portfolio_os/features/home/home_screen.dart';
 import 'package:portfolio_os/features/lock/lock_screen.dart';
@@ -47,18 +49,82 @@ void main() {
     await tester.pumpWidget(
       PlatformScope(
         controller: controller,
-        child: TokensScope(
-          tokens: tokens,
-          // Igual ao app de verdade: sem a faixa de debug, que cobriria
-          // justamente o canto onde ficam o sinal e a bateria.
-          child: MaterialApp.router(
-            routerConfig: router,
-            debugShowCheckedModeBanner: false,
+        child: ContentScope(
+          content: AppContent.pt,
+          child: TokensScope(
+            tokens: tokens,
+            // Igual ao app de verdade: sem a faixa de debug, que cobriria
+            // justamente o canto onde ficam o sinal e a bateria.
+            child: MaterialApp.router(
+              routerConfig: router,
+              debugShowCheckedModeBanner: false,
+            ),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
+  }
+
+  /// As telas de conteúdo, nas quatro combinações. É onde o cabeçalho da
+  /// plataforma aparece: título grande de um lado, barra presa do outro.
+  const skins = <String, PlatformSpec>{
+    'ios': PlatformController.ios,
+    'android': PlatformController.android,
+  };
+  const palettes = <String, AppTokens>{
+    'escuro': AppTokens.dark,
+    'claro': AppTokens.light,
+  };
+  const screens = <String, String>{
+    'sobre': Routes.about,
+    'experiencia': Routes.experience,
+    'curriculo': Routes.resume,
+  };
+
+  for (final skin in skins.entries) {
+    for (final palette in palettes.entries) {
+      for (final screen in screens.entries) {
+        testWidgets('retrato de ${screen.key} — ${skin.key}/${palette.key}', (
+          tester,
+        ) async {
+          await withClock(Clock.fixed(frozen), () async {
+            tester.view.physicalSize = const Size(390, 844);
+            tester.view.devicePixelRatio = 1;
+            addTearDown(tester.view.reset);
+
+            final controller = PlatformController(skin.value);
+            final router = createRouter(initialLocation: screen.value);
+            addTearDown(controller.dispose);
+            addTearDown(router.dispose);
+
+            await tester.pumpWidget(
+              PlatformScope(
+                controller: controller,
+                child: ContentScope(
+                  content: AppContent.pt,
+                  child: TokensScope(
+                    tokens: palette.value,
+                    child: MaterialApp.router(
+                      routerConfig: router,
+                      debugShowCheckedModeBanner: false,
+                    ),
+                  ),
+                ),
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            await expectLater(
+              find.byType(MaterialApp),
+              matchesGoldenFile(
+                'goldens/${screen.key}-${skin.key}-${palette.key}.png',
+              ),
+            );
+          });
+        });
+      }
+    }
   }
 
   testWidgets('retrato do bloqueio', (tester) async {

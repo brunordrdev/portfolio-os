@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../content/app_content.dart';
 import '../core/platform/platform_scope.dart';
 import '../core/platform/platform_spec.dart';
 import '../core/theme/tokens.dart';
@@ -14,16 +15,17 @@ class PortfolioApp extends StatefulWidget {
   /// Força um tema, ignorando a preferência do sistema. `null` devolve o
   /// controle ao sistema. É o gancho que Ajustes vai usar.
   static void overrideBrightness(BuildContext context, Brightness? brightness) {
-    context
-        .findAncestorStateOfType<_PortfolioAppState>()!
-        .overrideBrightness(brightness);
+    context.findAncestorStateOfType<_PortfolioAppState>()!.overrideBrightness(
+      brightness,
+    );
   }
 
   @override
   State<PortfolioApp> createState() => _PortfolioAppState();
 }
 
-class _PortfolioAppState extends State<PortfolioApp> {
+class _PortfolioAppState extends State<PortfolioApp>
+    with WidgetsBindingObserver {
   final PlatformController _platform = PlatformController();
   final GoRouter _router = createRouter();
 
@@ -36,7 +38,18 @@ class _PortfolioAppState extends State<PortfolioApp> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// O visitante pode trocar o idioma do sistema com o site aberto.
+  @override
+  void didChangeLocales(List<Locale>? locales) => setState(() {});
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _platform.dispose();
     _router.dispose();
     super.dispose();
@@ -56,21 +69,30 @@ class _PortfolioAppState extends State<PortfolioApp> {
   Widget _buildScopes(BuildContext context) {
     final brightness =
         _brightnessOverride ?? MediaQuery.platformBrightnessOf(context);
-    final tokens =
-        brightness == Brightness.dark ? AppTokens.dark : AppTokens.light;
+    final tokens = brightness == Brightness.dark
+        ? AppTokens.dark
+        : AppTokens.light;
+
+    // Mesmo princípio da plataforma e do tema: abre adaptado ao visitante.
+    final content = AppContent.forLocale(
+      View.of(context).platformDispatcher.locale,
+    );
 
     return PlatformScope(
       controller: _platform,
-      child: TokensScope(
-        tokens: tokens,
-        // Este Builder depende do PlatformScope: quando a chave vira, o tema
-        // do app se refaz sozinho com a pilha de fontes da outra plataforma.
-        child: Builder(
-          builder: (context) => MaterialApp.router(
-            title: 'Bruno Rodrigues',
-            debugShowCheckedModeBanner: false,
-            routerConfig: _router,
-            theme: _themeFrom(tokens, context.platform),
+      child: ContentScope(
+        content: content,
+        child: TokensScope(
+          tokens: tokens,
+          // Este Builder depende do PlatformScope: quando a chave vira, o tema
+          // do app se refaz sozinho com a pilha de fontes da outra plataforma.
+          child: Builder(
+            builder: (context) => MaterialApp.router(
+              title: 'Bruno Rodrigues',
+              debugShowCheckedModeBanner: false,
+              routerConfig: _router,
+              theme: _themeFrom(tokens, context.platform),
+            ),
           ),
         ),
       ),

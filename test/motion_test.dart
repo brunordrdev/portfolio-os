@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
@@ -9,7 +10,6 @@ import 'package:portfolio_os/features/about/about_screen.dart';
 import 'package:portfolio_os/features/home/home_screen.dart';
 import 'package:portfolio_os/features/lock/lock_screen.dart';
 import 'package:portfolio_os/shared/motion/app_open_page.dart';
-import 'package:portfolio_os/shared/widgets/app_icon.dart';
 
 /// O movimento da casca: abrir, fechar e voltar.
 ///
@@ -48,11 +48,14 @@ void main() {
           await tester.pumpWidget(
             PlatformScope(
               controller: controller,
-              child: TokensScope(
-                tokens: palette.value,
-                child: MaterialApp.router(
-                  routerConfig: router,
-                  debugShowCheckedModeBanner: false,
+              child: ContentScope(
+                content: AppContent.pt,
+                child: TokensScope(
+                  tokens: palette.value,
+                  child: MaterialApp.router(
+                    routerConfig: router,
+                    debugShowCheckedModeBanner: false,
+                  ),
                 ),
               ),
             ),
@@ -116,30 +119,6 @@ void main() {
           expect(route.originRadius, spec.iconRadius(60).topLeft.x);
         });
 
-        testWidgets('o movimento parte do tamanho do ladrilho da doca', (
-          tester,
-        ) async {
-          await openApp(tester);
-          // Volta para casa e abre pela doca, que tem ladrilho menor.
-          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-          await tester.pumpAndSettle();
-
-          await tester.tap(
-            find.byWidgetPredicate(
-              (w) => w is AppIcon && w.label == 'GitHub',
-            ),
-          );
-          await tester.pumpAndSettle();
-
-          final route =
-              ModalRoute.of(tester.element(find.text('GitHub').first))!
-                  as AppOpenRoute;
-          final origin = (route.settings as AppOpenPage).origin!;
-
-          expect(origin.rect.width, 52);
-          expect(route.originRadius, spec.iconRadius(52).topLeft.x);
-        });
-
         testWidgets('o app tapa o que está atrás', (tester) async {
           await openApp(tester);
 
@@ -191,35 +170,36 @@ void main() {
           );
         }
 
-        testWidgets('a tela acompanha o dedo e volta se soltar antes da metade', (
-          tester,
-        ) async {
-          await openApp(tester);
-          final route = openRoute(tester);
-          expect(route.animation!.value, 1.0);
+        testWidgets(
+          'a tela acompanha o dedo e volta se soltar antes da metade',
+          (tester) async {
+            await openApp(tester);
+            final route = openRoute(tester);
+            expect(route.animation!.value, 1.0);
 
-          // Arrasto curto e sem velocidade: desiste no meio do caminho.
-          final gesture = await tester.startGesture(const Offset(6, 400));
-          for (var i = 0; i < 5; i++) {
-            await gesture.moveBy(const Offset(12, 0));
-            await tester.pump();
-          }
+            // Arrasto curto e sem velocidade: desiste no meio do caminho.
+            final gesture = await tester.startGesture(const Offset(6, 400));
+            for (var i = 0; i < 5; i++) {
+              await gesture.moveBy(const Offset(12, 0));
+              await tester.pump();
+            }
 
-          // Sem isto o teste passaria mesmo que o gesto nunca tivesse
-          // começado: o app continuaria aberto por não ter acontecido nada.
-          expect(
-            route.animation!.value,
-            lessThan(1.0),
-            reason: 'a animação da rota tem que seguir o dedo',
-          );
-          expect(route.animation!.value, greaterThan(0.5));
+            // Sem isto o teste passaria mesmo que o gesto nunca tivesse
+            // começado: o app continuaria aberto por não ter acontecido nada.
+            expect(
+              route.animation!.value,
+              lessThan(1.0),
+              reason: 'a animação da rota tem que seguir o dedo',
+            );
+            expect(route.animation!.value, greaterThan(0.5));
 
-          await gesture.up();
-          await tester.pumpAndSettle();
+            await gesture.up();
+            await tester.pumpAndSettle();
 
-          expect(find.byType(AboutScreen), findsOneWidget);
-          expect(route.animation!.value, 1.0);
-        });
+            expect(find.byType(AboutScreen), findsOneWidget);
+            expect(route.animation!.value, 1.0);
+          },
+        );
 
         testWidgets('arrastar para cima na base volta para a tela inicial', (
           tester,
@@ -263,11 +243,14 @@ void main() {
             await tester.pumpWidget(
               PlatformScope(
                 controller: controller,
-                child: TokensScope(
-                  tokens: palette.value,
-                  child: MaterialApp.router(
-                    routerConfig: router,
-                    debugShowCheckedModeBanner: false,
+                child: ContentScope(
+                  content: AppContent.pt,
+                  child: TokensScope(
+                    tokens: palette.value,
+                    child: MaterialApp.router(
+                      routerConfig: router,
+                      debugShowCheckedModeBanner: false,
+                    ),
                   ),
                 ),
               ),

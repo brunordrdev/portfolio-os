@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/widgets/app_glyph.dart';
 import 'platform_spec.dart';
 
 /// A pele Android: ladrilho redondo, curva enfática nos dois sentidos e toque
@@ -54,8 +55,10 @@ class AndroidSpec extends PlatformSpec {
 
   // Qualquer borda lateral volta.
   @override
-  Set<ScreenEdge> get backGestureEdges =>
-      const {ScreenEdge.left, ScreenEdge.right};
+  Set<ScreenEdge> get backGestureEdges => const {
+    ScreenEdge.left,
+    ScreenEdge.right,
+  };
 
   @override
   Widget tappable({
@@ -66,11 +69,7 @@ class AndroidSpec extends PlatformSpec {
     return Material(
       type: MaterialType.transparency,
       borderRadius: radius,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: radius,
-        child: child,
-      ),
+      child: InkWell(onTap: onTap, borderRadius: radius, child: child),
     );
   }
 
@@ -80,6 +79,41 @@ class AndroidSpec extends PlatformSpec {
     required ValueChanged<bool> onChanged,
   }) {
     return Switch(value: value, onChanged: onChanged);
+  }
+
+  // Barra superior do Material: título à esquerda, seta com haste, sem
+  // sombra. Ela fica presa no topo em vez de encolher.
+  @override
+  Widget screenHeader({
+    required String title,
+    required VoidCallback onBack,
+    required Color background,
+    required Color foreground,
+  }) {
+    return SliverAppBar(
+      pinned: true,
+      backgroundColor: background,
+      surfaceTintColor: background,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleSpacing: 0,
+      automaticallyImplyLeading: false,
+      title: Text(
+        title,
+        style: TextStyle(
+          color: foreground,
+          fontSize: 22,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+      leading: IconButton(
+        onPressed: onBack,
+        icon: IconTheme(
+          data: IconThemeData(color: foreground, size: 24),
+          child: AppGlyph(AppGlyphs.arrowLeft),
+        ),
+      ),
+    );
   }
 
   @override

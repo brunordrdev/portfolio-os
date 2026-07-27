@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
 import 'package:portfolio_os/features/home/home_screen.dart';
@@ -11,13 +12,14 @@ import 'package:portfolio_os/features/lock/lock_screen.dart';
 /// resto roda em 800x600.
 void main() {
   for (final size in const [
-    Size(390, 844),  // iPhone 14
-    Size(360, 800),  // Android comum
-    Size(320, 568),  // o menor que ainda importa
+    Size(390, 844), // iPhone 14
+    Size(360, 800), // Android comum
+    Size(320, 568), // o menor que ainda importa
     Size(1440, 900), // desktop
   ]) {
-    testWidgets('casca cabe em ${size.width.toInt()}x${size.height.toInt()}',
-        (tester) async {
+    testWidgets('casca cabe em ${size.width.toInt()}x${size.height.toInt()}', (
+      tester,
+    ) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
@@ -27,13 +29,18 @@ void main() {
       addTearDown(controller.dispose);
       addTearDown(router.dispose);
 
-      await tester.pumpWidget(PlatformScope(
-        controller: controller,
-        child: TokensScope(
-          tokens: AppTokens.dark,
-          child: MaterialApp.router(routerConfig: router),
+      await tester.pumpWidget(
+        PlatformScope(
+          controller: controller,
+          child: ContentScope(
+            content: AppContent.pt,
+            child: TokensScope(
+              tokens: AppTokens.dark,
+              child: MaterialApp.router(routerConfig: router),
+            ),
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
       expect(find.byType(LockScreen), findsOneWidget);
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio_os/app/router.dart';
+import 'package:portfolio_os/content/app_content.dart';
 import 'package:portfolio_os/core/platform/platform_scope.dart';
 import 'package:portfolio_os/core/platform/platform_spec.dart';
 import 'package:portfolio_os/core/theme/tokens.dart';
@@ -28,10 +29,6 @@ void main() {
       Routes.experience,
       Routes.resume,
       Routes.settings,
-      Routes.phone,
-      Routes.email,
-      Routes.linkedin,
-      Routes.github,
     ]) {
       testWidgets(route, (tester) async {
         final controller = PlatformController(PlatformController.ios);
@@ -42,9 +39,12 @@ void main() {
         await tester.pumpWidget(
           PlatformScope(
             controller: controller,
-            child: TokensScope(
-              tokens: AppTokens.dark,
-              child: MaterialApp.router(routerConfig: router),
+            child: ContentScope(
+              content: AppContent.pt,
+              child: TokensScope(
+                tokens: AppTokens.dark,
+                child: MaterialApp.router(routerConfig: router),
+              ),
             ),
           ),
         );
@@ -86,9 +86,12 @@ void main() {
         await tester.pumpWidget(
           PlatformScope(
             controller: controller,
-            child: TokensScope(
-              tokens: palette.value,
-              child: MaterialApp.router(routerConfig: router),
+            child: ContentScope(
+              content: AppContent.pt,
+              child: TokensScope(
+                tokens: palette.value,
+                child: MaterialApp.router(routerConfig: router),
+              ),
             ),
           ),
         );
@@ -209,25 +212,19 @@ void main() {
           expect(find.text('Sobre'), findsOneWidget);
         });
 
-        testWidgets('os ícones da doca também levam a algum lugar', (
-          tester,
-        ) async {
+        testWidgets('os ícones da doca não têm rótulo na tela', (tester) async {
           await unlock(tester);
 
-          final dockIcon = tester
+          final dock = tester
               .widgetList<AppIcon>(find.byType(AppIcon))
-              .firstWhere((icon) => icon.label == 'GitHub');
-          expect(dockIcon.showLabel, isFalse);
+              .where((icon) => !icon.showLabel)
+              .toList();
 
-          await tester.tap(
-            find.byWidgetPredicate(
-              (w) => w is AppIcon && w.label == 'GitHub',
-            ),
+          expect(dock, hasLength(4));
+          expect(
+            dock.map((icon) => icon.label),
+            containsAll(<String>['Telefone', 'Email', 'LinkedIn', 'GitHub']),
           );
-          await tester.pumpAndSettle();
-
-          expect(find.byType(HomeScreen), findsNothing);
-          expect(find.text('GitHub'), findsOneWidget);
         });
       });
     }

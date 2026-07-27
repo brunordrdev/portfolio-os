@@ -166,11 +166,7 @@ class AppTokens {
 
 /// Leva os `AppTokens` do tema em uso para baixo na árvore.
 class TokensScope extends InheritedWidget {
-  const TokensScope({
-    super.key,
-    required this.tokens,
-    required super.child,
-  });
+  const TokensScope({super.key, required this.tokens, required super.child});
 
   final AppTokens tokens;
 

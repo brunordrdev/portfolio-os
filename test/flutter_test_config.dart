@@ -73,8 +73,6 @@ class _TolerantComparator extends LocalFileComparator {
 Future<Uint8List> _decode(Uint8List bytes) async {
   final codec = await ui.instantiateImageCodec(bytes);
   final frame = await codec.getNextFrame();
-  final data = await frame.image.toByteData(
-    format: ui.ImageByteFormat.rawRgba,
-  );
+  final data = await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
   return data!.buffer.asUint8List();
 }

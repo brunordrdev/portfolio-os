@@ -5,7 +5,6 @@ import '../core/platform/platform_scope.dart';
 import '../core/theme/tokens.dart';
 import '../shared/motion/app_open_page.dart';
 import '../features/about/about_screen.dart';
-import '../features/contact/contact_screen.dart';
 import '../features/experience/experience_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/lock/lock_screen.dart';
@@ -25,14 +24,10 @@ abstract final class Routes {
   static const String resume = '/curriculo';
   static const String settings = '/ajustes';
 
-  // A doca: contato.
-  static const String phone = '/telefone';
-  static const String email = '/email';
-  static const String linkedin = '/linkedin';
-  static const String github = '/github';
+  // A doca não tem rota: os quatro canais de contato são links externos.
 }
 
-/// As dez rotas que são app. Entrar direto numa delas é um deep link.
+/// As seis rotas que são app. Entrar direto numa delas é um deep link.
 const Set<String> _appPaths = {
   Routes.pen,
   Routes.projects,
@@ -40,10 +35,6 @@ const Set<String> _appPaths = {
   Routes.experience,
   Routes.resume,
   Routes.settings,
-  Routes.phone,
-  Routes.email,
-  Routes.linkedin,
-  Routes.github,
 };
 
 /// Monta a página de um app: o ladrilho cresce até virar a tela.
@@ -153,26 +144,6 @@ GoRouter createRouter({String initialLocation = Routes.lock}) {
         path: Routes.settings,
         pageBuilder: (context, state) =>
             _appPage(context, state, const SettingsScreen()),
-      ),
-      GoRoute(
-        path: Routes.phone,
-        pageBuilder: (context, state) =>
-            _appPage(context, state, const ContactScreen(channel: 'Telefone')),
-      ),
-      GoRoute(
-        path: Routes.email,
-        pageBuilder: (context, state) =>
-            _appPage(context, state, const ContactScreen(channel: 'Email')),
-      ),
-      GoRoute(
-        path: Routes.linkedin,
-        pageBuilder: (context, state) =>
-            _appPage(context, state, const ContactScreen(channel: 'LinkedIn')),
-      ),
-      GoRoute(
-        path: Routes.github,
-        pageBuilder: (context, state) =>
-            _appPage(context, state, const ContactScreen(channel: 'GitHub')),
       ),
     ],
   );
