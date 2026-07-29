@@ -1,14 +1,14 @@
 {
-  "name": "Bruno R. — Mobile Engineer",
+  "name": "Bruno Rodrigues — Mobile Engineer",
   "short_name": "Bruno R.",
-  "description": "Portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.",
-  "start_url": ".",
+  "description": "A portfolio built as a mobile operating system in Flutter. One codebase, two skins: it swaps between iOS and Android.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#16130F",
   "background_color": "#16130F",
-  "lang": "pt-BR",
+  "lang": "en",
   "icons": [
     {
       "src": "icons/icon-192.png",

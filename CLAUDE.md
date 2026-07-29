@@ -119,12 +119,33 @@ no orçamento. O caminho barato, no dia em que valer: desenhar as versões
 Android no próprio conjunto — mesmo `viewBox`, mesmo traço — e escolher entre
 elas por um membro da costura. Sem dependência nova.
 
-**Estacionado com gatilho:** o service worker é o do Flutter, e o próprio
-Flutter avisa no build que ele está **depreciado e sai numa versão futura**.
-Quando sair, o PWA deixa de ser instalável no Chrome sem que nada quebre em
-teste — e será preciso escrever um próprio, com um `fetch` que responda
-offline. O gatilho é o dia em que o aviso virar remoção: se o build parar de
-gerar `flutter_service_worker.js`, é isso.
+**Estacionado com gatilho — uma URL por idioma.** O HTML servido nasce em
+inglês, e quem tem o navegador em português recebe a troca no lugar, feita por
+um script inline síncrono antes do primeiro quadro. É uma URL só, então há um
+idioma indexável só: o inglês, que é o mercado que o currículo persegue. Não
+há `hreflang`, de propósito — hreflang pede uma URL por idioma, e apontar as
+duas para o mesmo documento em inglês declara uma versão que não existe no
+primeiro byte. Enfeite, pela regra 5. O gatilho é querer aparecer em busca em
+português: no dia em que valer, `/pt/` passa a ser arquivo de verdade gerado
+no build a partir da mesma fonte, com `hreflang` cruzado e `canonical` em cada
+uma. Antes disso, não.
+
+**Gatilho acionado — o service worker é nosso.** Ficava estacionado aqui que
+o service worker do Flutter sairia numa versão futura, e que o gatilho seria
+o build parar de gerar `flutter_service_worker.js`. O gatilho estava escrito
+errado: o build continua gerando o arquivo, e mesmo assim a coisa já tinha
+acabado. O arquivo virou um toco que se desregistra sozinho, e o carregador
+passou a só encostar em registro que já exista — `loadServiceWorker` sem
+`serviceWorkerUrl` explícito faz `getRegistration()` e desiste. Quer dizer:
+visitante novo nunca teve service worker, e "PWA instalável" era escopo da v1
+que não existia. Nada quebrou em teste porque o teste lia uma string no
+`flutter_bootstrap.js`, e a string estava lá.
+
+Hoje o service worker é `web/sw.js`, escrito à mão, com `fetch` que responde
+offline, e o registro é nosso, no `flutter_bootstrap.js`. A lição vale além
+dele: **comportamento de navegador não se cobra lendo arquivo.** Quem cobra é
+`tool/smoke.dart`, num Chrome de verdade, contra o endereço publicado, depois
+do deploy.
 
 **Gatilho acionado — a divisão do acento aconteceu.** Ficava estacionado aqui
 que `accent` se dividiria se algum dia fosse preciso acento vivo sobre

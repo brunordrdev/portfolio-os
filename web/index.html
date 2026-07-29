@@ -1,26 +1,70 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<!--
+  O documento nasce em inglês.
+
+  Esta moldura é a única parte do site que um rastreador lê — o Flutter web
+  desenha em canvas, e nada do que ele escreve entra no DOM. O currículo
+  persegue time internacional; um HTML servido em português mira o mercado
+  errado com a única página que existe para ser encontrada.
+
+  O português não desapareceu: cada frase que muda de idioma carrega a versão
+  em `data-pt`, e o script no fim do body troca o texto DOS MESMOS elementos
+  antes do primeiro quadro. Segunda cópia de texto no documento seria conteúdo
+  duplicado — o rastreador leria as duas e escolheria uma.
+-->
+<html lang="en">
 <head>
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Bruno Rodrigues, desenvolvedor mobile em Aracaju. Portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
+  <meta name="description" content="Bruno Rodrigues, mobile developer in Aracaju, Brazil. This portfolio is a mobile operating system written in Flutter: one codebase that swaps skins between iOS and Android.">
+
+  <!--
+    ATENÇÃO — o endereço abaixo é onde o site VIVE HOJE.
+
+    Rastreador de rede social não resolve caminho relativo e não segue
+    redirecionamento de domínio novo: og:url e og:image têm que ser URL
+    absoluta e apontar para onde o arquivo está agora. No dia em que
+    brunordrdev.com for ligado, trocar as quatro ocorrências deste host aqui
+    (canonical, og:url, og:image, twitter:image) — e só elas. O teste
+    `web_frame_test` cobra que og:url, canonical e og:image continuem na
+    mesma origem, então trocar pela metade quebra o CI em vez de sair
+    calado no LinkedIn.
+  -->
+  <link rel="canonical" href="https://portfolio-os-1rq.pages.dev/">
 
   <!-- Open Graph, para quando o endereço for colado em algum lugar. -->
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="pt_BR">
-  <meta property="og:url" content="https://brunordrdev.com/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="pt_BR">
+  <meta property="og:url" content="https://portfolio-os-1rq.pages.dev/">
   <meta property="og:site_name" content="Bruno Rodrigues">
-  <meta property="og:title" content="Bruno R. — Mobile Engineer">
-  <meta property="og:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
-  <meta property="og:image" content="icons/icon-512.png">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Bruno R. — Mobile Engineer">
-  <meta name="twitter:description" content="Um portfólio em forma de sistema operacional móvel, escrito em Flutter, que troca de pele entre iOS e Android com o mesmo código.">
+  <meta property="og:title" content="Bruno Rodrigues — Mobile Engineer · Flutter">
+  <meta property="og:description" content="A portfolio built as a mobile operating system in Flutter. One codebase, two skins: it swaps between iOS and Android — the demo is the site itself.">
 
-  <!-- Instalado na tela de início, o nome curto é o que cabe embaixo do ícone. -->
+  <!--
+    A prévia é paisagem 1200×630, e não o ícone quadrado de 512: em cartão
+    largo o quadrado é recortado no meio, e era assim que este link saía no
+    LinkedIn. As dimensões vão declaradas porque o rastreador monta o
+    espaço reservado antes de baixar a imagem.
+  -->
+  <meta property="og:image" content="https://portfolio-os-1rq.pages.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Bruno Rodrigues, Mobile Engineer, next to a phone showing the lock screen of the portfolio: hello, my name is Bruno.">
+
+  <!-- Sem o cartão declarado como grande, o X ignora a imagem e cai no quadrado. -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bruno Rodrigues — Mobile Engineer · Flutter">
+  <meta name="twitter:description" content="A portfolio built as a mobile operating system in Flutter. One codebase, two skins: it swaps between iOS and Android — the demo is the site itself.">
+  <meta name="twitter:image" content="https://portfolio-os-1rq.pages.dev/og-image.png">
+  <meta name="twitter:image:alt" content="Bruno Rodrigues, Mobile Engineer, next to a phone showing the lock screen of the portfolio: hello, my name is Bruno.">
+
+  <!-- Instalado na tela de início, o nome curto é o que cabe embaixo do ícone:
+       ele fica curto de propósito, enquanto o título traz o nome inteiro. -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -33,7 +77,8 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Bruno R. — Mobile Engineer</title>
+  <!-- O nome inteiro, e não "Bruno R.": é o que alguém digita ao procurar. -->
+  <title data-pt="Bruno Rodrigues — Desenvolvedor Mobile · Flutter">Bruno Rodrigues — Mobile Engineer · Flutter</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -212,20 +257,23 @@
 
     Se o texto do sistema mudar, este aqui não muda junto. É a duplicação
     aceita em troca de existir para quem procura.
+
+    O nome não tem `data-pt`: ele é o mesmo nos dois idiomas, e atributo que
+    repete o próprio conteúdo é enfeite.
   -->
   <main class="frame">
     <section class="copy">
       <h1>Bruno Rodrigues</h1>
-      <p class="role">Desenvolvedor mobile · Aracaju, Brasil</p>
-      <p class="lede">
-        Sou o único desenvolvedor de quatro aplicativos em produção usados por
-        mais de cem empresas no Brasil, em Flutter e Kotlin nativo, com os
-        backends em Java e SQL Server por trás deles.
+      <p class="role" data-pt="Desenvolvedor mobile · Aracaju, Brasil">Mobile developer · Aracaju, Brazil</p>
+      <p class="lede" data-pt="Sou o único desenvolvedor de quatro aplicativos em produção usados por mais de cem empresas no Brasil, em Flutter e Kotlin nativo, com os backends em Java e SQL Server por trás deles.">
+        I'm the only developer on four production apps used by more than a
+        hundred companies across Brazil, in Flutter and native Kotlin, with the
+        Java and SQL Server backends behind them.
       </p>
-      <p class="aside">
-        Este portfólio é um sistema operacional móvel escrito em Flutter. Ele
-        troca de pele entre iOS e Android com o mesmo código — a demonstração
-        é o próprio site.
+      <p class="aside" data-pt="Este portfólio é um sistema operacional móvel escrito em Flutter. Ele troca de pele entre iOS e Android com o mesmo código — a demonstração é o próprio site.">
+        This portfolio is a mobile operating system written in Flutter. It swaps
+        skins between iOS and Android from the same codebase — the demo is the
+        site itself.
       </p>
     </section>
 
@@ -238,26 +286,51 @@
       projeto — sendo Flutter, ela nunca pôde cumprir esse papel. Esta versão
       cumpre: chega no primeiro byte e é coberta pela de verdade.
 
+      As quatro frases são as mesmas de `AppContent.lock`, nos dois idiomas:
+      é a camada de baixo imitando a de cima, e palavra diferente aqui viraria
+      piscada na hora em que o Flutter cobrisse esta tela.
+
       Não tem relógio nem data: aqui não há como saber a hora, e número que
       não muda é enfeite.
     -->
     <div class="device">
       <div id="lock">
-        <p class="hello">olá</p>
-        <p class="who">me chamo Bruno</p>
-        <p class="job">desenvolvedor mobile</p>
+        <p class="hello" data-pt="olá">hello</p>
+        <p class="who" data-pt="me chamo Bruno">my name is Bruno</p>
+        <p class="job" data-pt="desenvolvedor mobile">mobile developer</p>
         <div class="swipe">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
                stroke-linejoin="round" aria-hidden="true">
             <path d="M12 19.5V5"/><path d="M6.5 10.5L12 5l5.5 5.5"/>
           </svg>
-          arraste para cima
+          <span data-pt="arraste para cima">swipe up</span>
         </div>
       </div>
       <div id="stage"></div>
     </div>
   </main>
+
+  <!--
+    A troca de idioma, no lugar.
+
+    Inline e síncrono: não espera rede nenhuma, e por estar depois do texto
+    que troca, roda com os elementos já no DOM e antes de o navegador ter
+    chance de pintar — quem tem o navegador em português não vê piscada de
+    inglês. Em <head> os elementos ainda não existiriam; com `defer` ou
+    `async` a piscada voltaria.
+
+    As metas ficam em inglês de propósito: quem as lê são rastreadores, que
+    não rodam JavaScript. Trocá-las aqui seria linha que não faz nada.
+  -->
+  <script>
+    if (/^pt\b/i.test(navigator.language || '')) {
+      document.documentElement.lang = 'pt-BR';
+      document.querySelectorAll('[data-pt]').forEach(function (el) {
+        el.textContent = el.dataset.pt;
+      });
+    }
+  </script>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>

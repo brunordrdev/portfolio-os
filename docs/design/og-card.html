@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* Cores copiadas de AppTokens.dark — as mesmas do CSS da moldura. */
+  :root {
+    --bg: #16130F;
+    --ink: #ECE5D9;
+    --muted: #B8AEA0;
+    --accent: #E8A94E;
+    --wp-top: #0A1113;
+    --wp-mid: #100D0B;
+    --wp-bottom: #191009;
+    --wp-cool: #386E7C66;
+    --wp-warm: #F0A04657;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    gap: 84px;
+    padding: 0 84px;
+  }
+  .copy { flex: 1; }
+  h1 {
+    font-size: 68px;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  .role {
+    margin-top: 14px;
+    color: var(--accent);
+    font-size: 25px;
+    letter-spacing: 0.01em;
+  }
+  .lede {
+    margin-top: 34px;
+    color: var(--muted);
+    font-size: 24px;
+    line-height: 1.45;
+    max-width: 30ch;
+  }
+
+  /* O aparelho, na proporção do .device da moldura: 390 × 908. */
+  .device {
+    flex: none;
+    width: 232px;
+    height: 540px;
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background:
+      radial-gradient(circle at 50% 102%, var(--wp-warm) 0%, transparent 30%),
+      radial-gradient(circle at 50% -12%, var(--wp-cool) 0%, transparent 32%),
+      linear-gradient(180deg, var(--wp-top) 0%, var(--wp-mid) 52%, var(--wp-bottom) 100%);
+  }
+  .hello {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-style: italic;
+    font-size: 40px;
+    line-height: 1.1;
+    color: var(--accent);
+  }
+  .who { margin-top: 11px; font-size: 14px; font-weight: 500; color: var(--ink); }
+  .job { margin-top: 4px; font-size: 11px; color: var(--muted); }
+  .swipe {
+    position: absolute;
+    bottom: 26px;
+    left: 0;
+    right: 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .swipe svg { display: block; margin: 0 auto 5px; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <h1>Bruno Rodrigues</h1>
+    <p class="role">Mobile Engineer · Flutter</p>
+    <p class="lede">A portfolio that is a mobile operating system. One codebase, two skins: iOS and Android.</p>
+  </div>
+  <div class="device">
+    <p class="hello">hello</p>
+    <p class="who">my name is Bruno</p>
+    <p class="job">mobile developer</p>
+    <div class="swipe">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19.5V5"/><path d="M6.5 10.5L12 5l5.5 5.5"/>
+      </svg>
+      swipe up
+    </div>
+  </div>
+</body>
+</html>
