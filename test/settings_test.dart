@@ -191,5 +191,37 @@ void main() {
       );
       expect(settings.theme, ThemeChoice.system);
     });
+
+    // Este é o caso que derrubou o site inteiro por causa de uma preferência:
+    // `main` dava `await` no armazenamento sem guarda, e armazenamento que
+    // não responde — plugin sem registro, aba anônima bloqueada — matava
+    // `main` antes do `runApp`. O visitante ficava com a tela de bloqueio de
+    // CSS para sempre, e nada em teste enxergava, porque em teste o
+    // armazenamento é um mapa que sempre responde.
+    test('armazenamento que não responde não derruba o site', () async {
+      final store = await openSettingsStore(
+        open: () => Future<SettingsStore>.error(
+          MissingPluginException('sem implementação para getAll'),
+        ),
+      );
+
+      expect(store, isA<MemoryStore>(), reason: 'devia ter caído na memória');
+
+      final settings = SettingsController(store: store);
+      expect(settings.language, LanguageChoice.system);
+
+      // E o site continua usável: a escolha vale nesta visita, só não na
+      // próxima. Degradar é perder a memória, não perder a tela.
+      settings.useLanguage(LanguageChoice.english);
+      expect(settings.language, LanguageChoice.english);
+    });
+
+    test('armazenamento que responde é usado como está', () async {
+      final opened = MemoryStore({'portfolio_os.language': 'english'});
+      final store = await openSettingsStore(open: () async => opened);
+
+      expect(identical(store, opened), isTrue);
+      expect(SettingsController(store: store).language, LanguageChoice.english);
+    });
   });
 }

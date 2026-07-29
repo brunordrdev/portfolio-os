@@ -113,6 +113,22 @@ jobs:
       # moderno baixa 1,8 MB em vez de 2,2 MB.
       - run: flutter build web --release --wasm
 
+      # O build cospe 38 MB e o visitante toca em 11 arquivos. A pasta
+      # canvaskit/ inteira — 31 MB, dos quais 6 MB são tabelas de símbolos de
+      # depuração — nunca é pedida: o carregador busca o motor no CDN do
+      # Google, com a revisão do engine no caminho. Medido em traço de rede,
+      # nos dois alvos, e não deduzido.
+      #
+      # Se um dia o Flutter parar de usar o CDN, o motor deixa de existir para
+      # o site e nada aqui reclama — quem reclama é a fumaça, logo abaixo, que
+      # carrega o endereço publicado e cobra o app montando.
+      - name: Tirar do deploy o que ninguém baixa
+        run: |
+          du -sh build/web
+          rm -rf build/web/canvaskit
+          find build/web -name '*.symbols' -delete
+          du -sh build/web
+
       # ── Publicação ────────────────────────────────────────────────────
       # Só na main, e só em push: um pull request de fora não publica.
       - name: Deploy — Cloudflare Pages
@@ -122,6 +138,31 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy build/web --project-name=portfolio-os
+
+      # ── Fumaça ────────────────────────────────────────────────────────
+      #
+      # O degrau que faltava. Tudo acima roda antes do build e enxerga o
+      # repositório; nada disso vê o site montando. Os dois defeitos que
+      # passaram batidos eram dessa classe — o service worker que não
+      # registrava e a preferência que não voltava — e os dois estavam verdes
+      # em teste que lia arquivo. Este carrega o endereço publicado num Chrome
+      # de verdade e cobra comportamento.
+      #
+      # Depois do deploy de propósito: antes dele não há o que carregar.
+      - name: Fumaça — o site publicado responde
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # O Pages leva alguns segundos para o endereço devolver o deploy
+          # novo. Três tentativas separam "ainda propagando" de "quebrado".
+          for attempt in 1 2 3; do
+            if dart run tool/smoke.dart https://portfolio-os-1rq.pages.dev; then
+              exit 0
+            fi
+            echo "::warning::tentativa $attempt falhou; esperando o deploy propagar"
+            sleep 20
+          done
+          echo "::error::o site publicado não passou na fumaça"
+          exit 1
       #
       # O projeto "portfolio-os" precisa existir antes no painel do
       # Cloudflare Pages (Workers & Pages › Create › Pages › Direct Upload).

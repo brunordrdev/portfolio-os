@@ -13,8 +13,9 @@ Future<void> main() async {
 
   // A escolha guardada é lida antes do primeiro quadro. Lida depois, quem
   // escolheu inglês veria o site abrir em português e se corrigir na cara
-  // dele a cada visita.
-  final settings = SettingsController(store: await PreferencesStore.open());
+  // dele a cada visita. E é lida com guarda — ver `openSettingsStore`: sem
+  // ela, armazenamento que não responde derruba `main` antes do `runApp`.
+  final store = await openSettingsStore();
 
-  runApp(PortfolioApp(settings: settings));
+  runApp(PortfolioApp(settings: SettingsController(store: store)));
 }

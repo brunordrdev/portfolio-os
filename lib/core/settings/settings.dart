@@ -54,6 +54,25 @@ class PreferencesStore implements SettingsStore {
   }
 }
 
+/// Abre o armazenamento do navegador, e cai na memória se ele não responder.
+///
+/// Aba anônima com armazenamento bloqueado, plugin que não registrou, política
+/// do navegador: em qualquer um deles o site abre, e só a escolha não
+/// sobrevive ao recarregar. Sem esta guarda o `await` derruba `main` antes do
+/// `runApp`, e o visitante fica olhando a tela de bloqueio de CSS para sempre
+/// — falha total por causa de uma preferência.
+///
+/// `open` existe para o teste: em produção é sempre `PreferencesStore.open`.
+Future<SettingsStore> openSettingsStore({
+  Future<SettingsStore> Function()? open,
+}) async {
+  try {
+    return await (open ?? PreferencesStore.open)();
+  } catch (_) {
+    return MemoryStore();
+  }
+}
+
 /// A escolha do visitante sobre idioma e tema.
 ///
 /// "Sistema" é o padrão e não é ausência de escolha: é a escolha de seguir o
