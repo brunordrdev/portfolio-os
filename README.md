@@ -112,35 +112,89 @@ lib/shared/      widgets reutilizáveis
 
 ## Orçamento de performance
 
-Medido, não estimado: os bytes são os do build comprimido em brotli, que é o
-que o Cloudflare entrega. O tempo é derivado deles num perfil declarado —
+Medido no fio, não estimado. Os números abaixo são os bytes que **saíram do
+servidor** para um navegador de verdade, lidos do traço de rede do Chrome e
+conferidos com `curl` contra o endereço publicado — não são o build comprimido
+aqui na máquina. A diferença entre as duas coisas não é pequena, e está
+explicada logo abaixo. O tempo é derivado dos bytes num perfil declarado —
 **4G lento: 1,6 Mbit/s de descida (≈200 KB/s) e 150 ms de ida e volta**, o
 mesmo que o Lighthouse chama de "Slow 4G". Refazer a medição:
 
 ```
-flutter build web --release --wasm
-brotli -c -q 11 build/web/main.dart.wasm | wc -c
+curl -s -o /dev/null -H 'Accept-Encoding: br' -w '%{size_download}\n' \
+  https://portfolio-os-1rq.pages.dev/main.dart.wasm
 ```
 
 O site tem duas "primeiras telas", e elas chegam em tempos muito diferentes:
 
-| | antes | com `--wasm` | com Roboto | hoje |
-|---|---|---|---|---|
-| Texto da moldura (HTML, sem JavaScript) | 2,1 KB · **~0,2 s** | 2,1 KB · ~0,2 s | 2,1 KB · ~0,2 s | 2,1 KB · **~0,2 s** |
-| Sistema utilizável, navegador moderno | 2 210 KB · ~11,2 s | 1 847 KB · ~9,4 s | 2 069 KB · ~10,3 s | **1 916 KB · ~9,6 s** |
-| Sistema utilizável, navegador antigo | 2 812 KB · ~14,2 s | 2 211 KB · ~11,2 s | 2 433 KB · ~12,3 s | 2 280 KB · ~11,4 s |
+| | de onde vem | bytes | tempo |
+|---|---|---|---|
+| Texto da moldura (HTML, sem JavaScript) | site | 5,4 KB | **~0,2 s** |
+| Sistema utilizável — Chrome, Edge | site + CDN do Google | **2 117 KB** | ~10,6 s |
+| Sistema utilizável — Safari, Firefox | site + CDN do Google | **3 102 KB** | ~15,5 s |
 
 O texto da moldura chega no primeiro pacote porque é HTML servido direto — é
 o motivo de ele existir, e é o que um visitante em rede ruim lê enquanto o
-resto carrega.
+resto carrega. Ele dobrou de tamanho quando passou a trazer as duas línguas e
+a prévia de compartilhamento; continua cabendo no primeiro pacote.
 
-**O que mudou.** Passar a compilar com `--wasm` foi a única mudança que valeu
-dinheiro. Ela produz os dois alvos — `dart2wasm` + `skwasm` para quem tem
-WasmGC, `dart2js` + `canvaskit` para o resto — e o carregador escolhe: nada
-quebra em navegador velho, e o moderno baixa 1,16 MB de motor em vez de 1,57
-(variante Chromium) ou 2,18 (canvaskit genérico). Saiu também a dependência
-`cupertino_icons`, que não era usada: os glifos são todos próprios. Foram 1,5 KB
-e nenhum pixel de diferença nos vinte retratos.
+**Os cinco maiores, no caminho do Chrome:** o motor `skwasm.wasm` (1 179 KB,
+do CDN do Google), `main.dart.wasm` (809 KB, do site), as três fontes Roboto
+recortadas (77 KB), `icons/icon-192.png` (14 KB, que o Chrome busca no
+carregamento por causa do manifesto) e `skwasm.js` (15 KB). Tudo o mais somado
+não chega a 25 KB.
+
+**Metade do peso não passa pelo site.** O carregador busca o motor em
+`www.gstatic.com/flutter-canvaskit/<revisão>/`, e não na pasta `canvaskit/`
+do build: 58% do que o Chrome baixa, 73% do que o Safari baixa. É byte que
+não dá para comprimir melhor, hospedar mais perto nem cortar — e é a resposta
+para a maior parte das perguntas de peso deste projeto.
+
+**Quem pega qual alvo, e por quê.** `--wasm` compila os dois — `dart2wasm` +
+`skwasm` e `dart2js` + `canvaskit` — e o carregador baixa **um só**: medido em
+traço de rede, nunca os dois. A regra está no `flutter.js` e é mais estreita do
+que parece: o alvo wasm exige WasmGC, e o renderizador `skwasm` exige, além
+disso, WebGL e **motor de navegador Blink** — a lista do Flutter é
+`{blink: true, gecko: false, webkit: false}`. Quer dizer: **Safari e Firefox
+nunca pegam o alvo wasm**, nem os que suportam WasmGC. Eles baixam o canvaskit
+genérico, que é o arquivo mais pesado da história toda (2 194 KB), e é por isso
+que a linha deles é quase 1 MB mais cara. iPhone é Safari.
+
+**A alavanca que existe nesse caminho, e o risco dela.** A lista de permissão
+é configurável: `wasmAllowList: {webkit: true, gecko: true}` na chamada do
+carregador colocaria Safari 18.2+ e Firefox 120+ no alvo wasm — 1 179 KB de
+motor em vez de 2 194 KB, com o `main.dart.wasm` custando 33 KB a mais que o
+`main.dart.js`. Economiza **~1 007 KB, um terço do caminho lento**, e quem não
+tem WasmGC continua caindo no alvo antigo sozinho, por detecção de recurso. O
+risco não é de compatibilidade, é de fidelidade: a lista do Flutter é política,
+não capacidade, e eles não abençoaram o skwasm fora do Blink. Trocar sem olhar
+pixel a pixel no Safari seria apostar a tela justo no público-alvo. Fica
+decidido no dia em que houver um Safari de verdade para conferir.
+
+**Dentro do que é nosso, não há o que cortar.** Um app padrão de
+`flutter create`, compilado para o mesmo alvo JS, dá 428 KB comprimido. O nosso
+dá 622 KB. A diferença — 194 KB — é tudo o que este projeto pesa acima do piso
+do framework: 6% do caminho do Safari. Carregamento adiado dividiria esses
+194 KB, e a primeira tela precisa de quase todos.
+
+**A compressão do Cloudflare é mais fraca do que a daqui, e não dá para
+mudar.** O `main.dart.wasm` sai daqui com 655 KB em `brotli -q 11` e chega ao
+visitante com 809 KB: o Pages comprime sozinho, em nível baixo, e o nível não
+se escolhe. Serviria mandar o arquivo já comprimido — **o Pages não serve
+arquivo pré-comprimido**: `.br` irmão não é negociado, e a única saída seria
+declarar `Content-Encoding: br` à mão no `_headers`, o que entrega brotli para
+todo mundo sem negociar. Foram ~157 KB perseguidos e não existem. Está escrito
+aqui para ninguém perseguir de novo.
+
+**O que sai do deploy.** O build cospe 38 MB, e o visitante toca em 11
+arquivos. A pasta `canvaskit/` inteira — 31 MB, dos quais 6 MB são tabelas de
+símbolos de depuração — nunca é pedida, porque o motor vem do CDN. O CI a
+apaga antes de publicar: o deploy é 6,6 MB. Se um dia o Flutter parar de usar
+o CDN, quem reclama é a fumaça pós-deploy, que carrega o site publicado e cobra
+o app montando.
+
+Saiu também a dependência `cupertino_icons`, que não era usada: os glifos são
+todos próprios. Foram 1,5 KB e nenhum pixel de diferença nos vinte retratos.
 
 **A fonte, recortada.** O Roboto completo tem três mil caracteres e pesava
 220 KB nos três pesos. Recortado para latim básico mais a acentuação do
@@ -161,15 +215,23 @@ confere que toda letra que o site escreve está lá dentro. Refazer o recorte:
 python3 -m fontTools.subset Roboto-Regular.ttf   --unicodes='U+0020-007E,U+00A0,U+00AA,U+00B0,U+00B7,U+00BA,U+00C0-00FF,U+2013,U+2014,U+2018,U+2019,U+201C,U+201D,U+2022,U+2026'   --layout-features='*' --output-file=assets/fonts/Roboto-Regular.ttf
 ```
 
-**O que não vale a pena, e por quê.** O motor é 63% do que se baixa; o código
-do app é 653 KB. Carregamento adiado dividiria o código do app, não o motor,
-e a primeira tela precisa do motor inteiro — dividir o menor pedaço não
-encurta a espera. Fonte não há: a tipografia é a pilha do sistema, e as duas
-fontes de ícone que sobram somam 3,2 KB depois de sacudidas. Imagem também
-não: os PNGs do manifesto não estão no caminho crítico.
+**O que não vale a pena, e por quê.** O motor é 58% do que o Chrome baixa e
+73% do que o Safari baixa, e ele não é nosso. Carregamento adiado dividiria os
+194 KB que são — e a primeira tela precisa de quase todos. Fonte não há mais o
+que tirar: a tipografia é a pilha do sistema, e as duas fontes de ícone que
+sobram somam 3,2 KB depois de sacudidas. Imagem quase não: o único PNG no
+caminho crítico é o `icon-192` do manifesto, 14 KB que o Chrome busca sozinho
+para a instalação — e é o preço de o site ser instalável.
 
-Nada disso está no CI de propósito. Isto é medição, não infraestrutura: um
-orçamento automatizado que ninguém lê vira mais um passo verde.
+O orçamento não está no CI de propósito. Isto é medição, não infraestrutura:
+um número automatizado que ninguém lê vira mais um passo verde. O que **está**
+no CI é o degrau seguinte, e por motivo oposto: `tool/smoke.dart` carrega o
+endereço publicado num Chrome de verdade, depois do deploy, e cobra o que só
+existe em execução — o service worker registrando e assumindo a página, a
+preferência guardada voltando aplicada depois de um recarregar, o app montando
+e desenhando, o HTML servido em inglês, e nenhum erro no console. Os dois
+defeitos que este projeto já teve dessa classe estavam verdes em teste que lia
+arquivo.
 
 ## Rodar
 
@@ -179,3 +241,19 @@ flutter analyze --fatal-infos
 flutter test
 flutter run -d chrome
 ```
+
+A fumaça precisa de um site de pé, então ela roda contra um endereço — o
+publicado, ou um build local servido:
+
+```
+dart run tool/smoke.dart https://portfolio-os-1rq.pages.dev
+
+flutter build web --release --wasm
+(cd build/web && python3 -m http.server 8080) &
+dart run tool/smoke.dart http://localhost:8080
+```
+
+Se ela reclamar de coisa que só acontece na sua máquina, desconfie do build
+incremental antes de desconfiar do site: um `web_plugin_registrant.dart` velho
+já deixou o `shared_preferences` de fora do pacote aqui, sem deixar de fora no
+CI, que compila do zero. `flutter clean` resolve, e a fumaça confirma.
